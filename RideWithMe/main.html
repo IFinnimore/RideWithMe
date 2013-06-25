@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title></title>
+		<meta charset="utf-8" />
+		<script src="cordova.js"></script>
+		<script src="kendo/js/jquery.min.js"></script>
+		<script src="kendo/js/kendo.mobile.min.js"></script>
+		<script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+		<script src="scripts/RideWithMe.js"></script>
+		<link href="kendo/styles/kendo.mobile.all.min.css" rel="stylesheet" />
+		<link href="styles/main.css" rel="stylesheet" />
+        
+	</head>
+	<body>
+		<div data-role="view" id="tabstrip-play" data-title="Ride With Me">
+			<p id="startStop" style="text-align: center;">
+                    <img src="Images/Start.png" style="width: 40%;" onclick="startRide()" id="theStartStop"/>
+			</p>
+			<p id="showAllRiders" style="text-align: center; font-size: 0.8em;">
+				<span>Show all riders <input type="checkbox" data-role="switch"/> Only My Type</span>
+			</p>
+			<p id="wrench" style="text-align: center;">
+				<img src="Images/wrench_256.png" Width="60%"/>
+			</p>
+		</div>
+
+		<div data-role="view" id="tabstrip-map" data-title="Map" data-stretch="true">
+            <div id="map-canvas"></div>
+		</div>
+
+		<div data-role="view" id="tabstrip-bikes" data-title="Bikes">
+			<h1>Bikes</h1>
+		</div>
+
+		<div data-role="view" id="tabstrip-devtools" data-title="DevTools">
+			<div class="buttonArea">
+				<a id="getDataButton" data-role="button" data-click="testPingService" data-icon="refresh">Get Rider Id</a>
+			</div>
+			<div id="devToolsReplies"></div>
+            <div id="status">Status</div>
+            <div id="devToolsOptions">
+                <h2>Developer Tools Options</h2>
+                <span><p>Update Frequency in milliseconds:</p><input type="text" value="2000" id="txtUpdateFrequency"/>
+                    <a id="updateFrequencyButton" data-role="button" data-click="updateFrequency" data-icon="refresh">Update</a>
+                </span>
+                
+           </div>
+		</div>
+
+		<div data-role="layout" data-id="mobile-tabstrip">
+			<header data-role="header">
+				<div data-role="navbar">
+					<span data-role="view-title"></span>
+				</div>
+			</header>
+
+			<div data-role="footer">
+				<div data-role="tabstrip">
+					<a href="#tabstrip-play" data-icon="play">Play/Stop</a>
+					<a href="#tabstrip-map" data-icon="globe" id="theMap">Map</a>
+					<a href="#tabstrip-bikes" data-icon="bike">Bikes</a>
+					<a href="#tabstrip-devtools" data-icon="organize" id="devtools">Dev.Tools</a>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			var app = new kendo.mobile.Application(document.body, { transition: "slide", layout: "mobile-tabstrip" });
+		</script>
+	</body>
+</html>
