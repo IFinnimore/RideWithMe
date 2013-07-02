@@ -1,33 +1,69 @@
-var map, currentPositionMarker, mapCenter, riderId, geoLoc, prevLat, prevLon, markerIcon, timer, markersArray, isStarted;
+var urls;
+
+function model() {
+	this.map;
+	this.currentPositionMarker;
+	this.riderId;
+	this.geoLoc;
+	this.prevLat;
+	this.prevLon;
+	this.markerIcon;
+	this.timer;
+	this.markersArray;
+	this.isStarted;
+	this.bikersArray;
+}
 
 function geolocationApp() {
+}
+
+function model() {
 }
 
 document.addEventListener("deviceready", onDeviceReady, false);
 
 function onDeviceReady() {
+	//localStorage.clear();
+	urls = {
+		getRiderIdUrl: "http://85.124.19.16/IFServices/RideWithMeService.svc/GetNewRiderID",
+		writeGeoDataUrl: "http://85.124.19.16/IFServices/RideWithMeService.svc/CollectGeoData/?",
+		updateRWMUrl: "http://85.124.19.16/IFServices/RideWithMeService.svc/UpdateRwm/?",
+	}
 	var frequ = localStorage.getItem("locFrequency");
 	if (frequ != undefined)
 		$("#txtUpdateFrequency").val(frequ);
-	markersArray = [];
+	model = new model();
+	model.markersArray = [];
+	model.isStarted = false;
+	loadListOfBikes();
+	checkForFirstBike();
+}
+
+function checkForFirstBike() {
+	if (model.bikersArray.length == 0) {
+		$("#txtBikeID").val(getBikeId());
+		getId();
+		saveBike();
+		location.href = "#tabstrip-bikes";
+	}
+}
+
+function getNewId() {
 	getId();
-	isStarted = false;
 }
 
 function getId() {
-	var localRiderID = localStorage.getItem("locRiderId");
-	if (localRiderID == undefined) {
+	if (model.RiderId == undefined) {
 		$.ajax({
 			type: "GET",
-			url: "http://85.124.19.16/IFServices/RideWithMeService.svc/GetNewRiderID",
+			url: urls.getRiderIdUrl,
 			contentType: "application/json; charset=utf-8",
 			crossDomain: true,
 			dataType: "json",
 			timeout: 15000,
 			success: function (data) {
-				riderId = data;
-				localStorage.setItem("locRiderId", data);
-				$("#devToolsReplies").html("Rider Id: " + riderId);
+				model.riderId = data;
+				$("#txtRiderId").val(model.riderId);
 			},
 			fail: function () {
 				$("#devToolsReplies").html("Error retrieving string");
@@ -38,13 +74,10 @@ function getId() {
 
 		});
 	}
-	else {
-		riderId = localRiderID;
-	}
 } 
 
 function writeGeoDataToServer(lat, lon, acc) {
-	var myUrl = "http://85.124.19.16/IFServices/RideWithMeService.svc/CollectGeoData/?id=" + riderId + "&latitude=" + lat + "&longitude=" + lon + "&accuracy=" + acc + "&tmstamp=" + new Date().getTime();
+	var myUrl = urls.writeGeoDataUrl + "id=" + model.riderId + "&latitude=" + lat + "&longitude=" + lon + "&accuracy=" + acc + "&tmstamp=" + new Date().getTime();
 	$.ajax({
 		type: "GET",
 		url: myUrl,
@@ -66,8 +99,8 @@ function writeGeoDataToServer(lat, lon, acc) {
 } 
 
 function startRide() {
-	isStarted = !isStarted;
-	if (isStarted) {
+	model.isStarted = !model.isStarted;
+	if (model.isStarted) {
 		location.href = "#tabstrip-map";   
 		$("#imgStartStop").attr("src", "images/Stop.png");
 	}
@@ -87,16 +120,16 @@ function calcAngle(x1, y1, x2, y2) {
 }
 
 function showMapTab() {
-	if (map == undefined) {
+	if (model.map == undefined) {
 		geolocationApp = new geolocationApp();
 		geolocationApp.run();
 	}
 }
 
 function updateRWM(lat, lon) {
-	if (riderId == undefined)
+	if (model.riderId == undefined)
 		return;
-	var myUrl = "http://85.124.19.16/IFServices/RideWithMeService.svc/UpdateRwm/?riderId=" + riderId + "&lat=" + lat + "&lon=" + lon + "&heading=0&type=1&pelSize10&showAll=true&ts=" + new Date().getTime();
+	var myUrl = urls.updateRWMUrl + "riderId=" + model.riderId + "&lat=" + lat + "&lon=" + lon + "&heading=0&type=1&pelSize=10&showAll=true&ts=" + new Date().getTime();
 	$.ajax({
 		type: "GET",
 		url: myUrl,
@@ -105,17 +138,17 @@ function updateRWM(lat, lon) {
 		dataType: "json",
 		timeout: 15000,
 		success: function (data) {
-			for (var i = 0; i < markersArray.length; i++) {
-				markersArray[i].setMap(null);
+			for (var i = 0; i < model.markersArray.length; i++) {
+				model.markersArray[i].setMap(null);
 			}
-			markersArray = [];
+			model.markersArray = [];
 			for (var i = 0; i < data.length; i++) {
-				if (data[i].RiderId != riderId) {
+				if (data[i].RiderId != model.riderId) {
 					var pos = new google.maps.LatLng(data[i].Lat, data[i].Lon);
 					var angle = calcAngle(data[i].PLat, data[i].PLon, data[i].Lat, data[i].Lon);
 					var mIcon = { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 6,  fillColor: '#88DD33', fillOpacity: 1, strokeWeight: 1, rotation: angle };
-					markersArray[i] = new google.maps.Marker({
-						map: map,
+					model.markersArray[i] = new google.maps.Marker({
+						map: model.map,
 						position: pos,
 						icon: mIcon
 					});
@@ -133,9 +166,56 @@ function updateRWM(lat, lon) {
 	});
 }
 
-function editBike(bikeID){
-    $("#test").html(bikeID);
-    location.href="#bike-details";
+function editBike(bikeID) {
+	$("#txtDescription").val('do samma');
+	//location.href = "#tabstrip-bikes";
+}
+
+function saveBike() {
+	var id = $("#txtBikeID").val();
+	if (id == undefined)
+		id = getBikeId();
+	var bike = {ID: id, RiderID: model.RiderId, Description: $("#txtDescription").val(), Type: $("#selType")[0].selectedIndex, Style: $("#selStyle")[0].selectedIndex};
+	syncListOfBikes(bike);
+}
+
+function getBikeId() {
+	return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+}
+
+function syncListOfBikes(bike) {
+	if (model.bikersArray == undefined)
+		model.bikersArray = [];
+	var bikeNumber = model.bikersArray.length;
+	for (var i = 0; i < model.bikersArray.length; i++) {
+		if (model.bikersArray[i].ID == bike.ID) {
+			bikeNumber = i;
+			break;
+		}
+	}
+	model.bikersArray[bikeNumber] = bike;
+	localStorage.setItem("Bikes", JSON.stringify(model.bikersArray));
+}
+
+function loadListOfBikes() {
+	var bikes = localStorage.getItem("Bikes");
+	if (bikes != undefined) {
+		model.bikersArray = JSON.parse(bikes);
+		showAllBikesInList();
+	}
+	else
+		model.bikersArray = [];
+}
+
+function showAllBikesInList() {
+	var lis = "";
+	for (var i = 0; i < model.bikersArray.length; i++) {
+		var content = model.bikersArray[i].Description;
+		if (content == "")
+			content = model.bikersArray[i].RiderId;
+		lis += '<li><a href="#tabstrip-bikes" onclick="editBike(\'' + model.bikersArray[i].ID + '\')">' + content + "</a></li>";
+	}
+	$("#lstBikes").html(lis);
 }
 
 geolocationApp.prototype = {
@@ -152,8 +232,8 @@ geolocationApp.prototype = {
 			enableHighAccuracy: true
 		};
 		that._setResults("Waiting for geolocation information...");
-		geoLoc = navigator.geolocation;
-		geoLoc.getCurrentPosition(
+		model.geoLoc = navigator.geolocation;
+		model.geoLoc.getCurrentPosition(
 			function() {
 				that._onSuccess.apply(that, arguments);
 			},
@@ -161,8 +241,8 @@ geolocationApp.prototype = {
 				that._onError();
 			}, 
 			options)
-		timer = window.setInterval(function() {
-			geoLoc.getCurrentPosition(
+		model.timer = window.setInterval(function() {
+			model.geoLoc.getCurrentPosition(
 				function() {
 					that._onSuccess.apply(that, arguments);
 				},
@@ -171,14 +251,14 @@ geolocationApp.prototype = {
 				}, 
 				options)
 		}
-        , refreshTime);
+										 , refreshTime);
 	},
     
 	_onSuccess:function(position) {
 		// Successfully retrieved the geolocation information. Display it all.
 		var curPos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-		if (map == undefined) {
-			map = new google.maps.Map(document.getElementById('map-canvas'), {
+		if (model.map == undefined) {
+			model.map = new google.maps.Map(document.getElementById('map-canvas'), {
 				sensor: true,
 				zoom: 15,
 				center: curPos,
@@ -187,37 +267,37 @@ geolocationApp.prototype = {
 				streetViewControl: false,
 				zoomControl: false
 			});
-			markerIcon = { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 6,  fillColor: '#DD88EE', fillOpacity: 1, strokeWeight: 1, rotation: 0 };
-			currentPositionMarker = new google.maps.Marker({
-				map: map,
+			model.markerIcon = { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 6,  fillColor: '#DD88EE', fillOpacity: 1, strokeWeight: 1, rotation: 0 };
+			model.currentPositionMarker = new google.maps.Marker({
+				map: model.map,
 				position: curPos,
-				icon: markerIcon
+				icon: model.markerIcon
 			});
-            var can = $("#map-canvas");
-            can.css("height", can[0].parentElement.clientHeight);
+			var can = $("#map-canvas");
+			can.css("height", can[0].parentElement.clientHeight);
 			updateRWM(position.coords.latitude, position.coords.longitude);
 		}
 		else {
-			if (prevLat != position.coords.latitude || prevLon != position.coords.longitude) {
-				map.panTo(curPos);
-				currentPositionMarker.setPosition(curPos);
-				var angle = calcAngle(prevLat, prevLon, position.coords.latitude, position.coords.longitude);
+			if (model.prevLat != position.coords.latitude || model.prevLon != position.coords.longitude) {
+				model.map.panTo(curPos);
+				model.currentPositionMarker.setPosition(curPos);
+				var angle = calcAngle(model.prevLat, model.prevLon, position.coords.latitude, position.coords.longitude);
 				$("#status").html(angle);
-				markerIcon = {
-					path: markerIcon.path, 
-					scale: markerIcon.scale,  
-					fillColor: markerIcon.fillColor, 
-					fillOpacity: markerIcon.fillOpacity, 
-					strokeWeight: markerIcon.strokeWeight, 
+				model.markerIcon = {
+					path: model.markerIcon.path, 
+					scale: model.markerIcon.scale,  
+					fillColor: model.markerIcon.fillColor, 
+					fillOpacity: model.markerIcon.fillOpacity, 
+					strokeWeight: model.markerIcon.strokeWeight, 
 					rotation: angle
 				};
-				currentPositionMarker.setIcon(markerIcon);
+				model.currentPositionMarker.setIcon(model.markerIcon);
 				writeGeoDataToServer(position.coords.latitude, position.coords.longitude, position.coords.accuracy)
 			}
 			updateRWM(position.coords.latitude, position.coords.longitude);
 		}
-		prevLat = position.coords.latitude;
-		prevLon = position.coords.longitude;
+		model.prevLat = position.coords.latitude;
+		model.prevLon = position.coords.longitude;
 	},
     
 	_onError:function(error) {

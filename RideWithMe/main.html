@@ -31,27 +31,54 @@
 		</div>
 
 		<div data-role="view" id="tabstrip-bikes" data-title="Bikes">
-			<table>
-				<tr>
-					<td width="100%">
-						<h1>Bikes</h1>
-					</td>
-					<td>
-						<img src="images/Add.png" style="width: 60px; margin: 10px;" onclick="editBike('new')"/>
-					</td>
-				</tr>
-			</table>
+            <header data-role="header">
+				<div data-role="navbar">
+					<a href="#tabstrip-bikeslist" data-role="backbutton" data-align="left" data-rel="actionsheet">Back</a>
+					<span data-role="view-title"></span>
+					<a data-role="button" data-click="saveBike" data-align="right" class="toggleButton">Save</a>
+				</div>
+			</header>
 			<ul data-role="listview" data-style="inset">
 				<li>
-					<a href="#">My Bike</a>
+					<span class="settinglabelspan">Pick Type</span>
+					<select id="selType" type="select">
+						<option>Mountain Bike</option>
+						<option>Road</option>
+						<option>Tour</option>
+					</select>
 				</li>
-				<li>My Bike 2</li>
+				<li>
+					<span class="settinglabelspan">Pick Style</span>
+					<select id="selStyle" type="select">
+						<option>Ride</option>
+						<option>Competition</option>
+						<option>Recreation</option>
+						<option>Leisure</option>
+					</select>
+				</li>
 			</ul>
+			<ul data-role="listview" data-style="inset">
+				<li>
+					<a href="#" data-role="button" data-click="getNewId">Get New</a>
+					<span class="settinglabelspan">ID</span>
+					<input id="txtRiderId" readonly="readonly" type="text" style="color: gray;"/>
+				</li>
+				<li>
+					<span class="settinglabelspan">Description</span>
+					<input id="txtDescription" type="text"/>
+				</li>
+			</ul>
+			<input type="hidden" id="txtBikeId" />
 		</div>
-
-		<div data-role="view" id="bike-details" data-title="Bike details">
-			Details
-			<div id="test"></div>
+		<div data-role="view" id="tabstrip-bikeslist" data-title="Bikes">
+			<header data-role="header">
+				<div data-role="navbar">
+					<a href="#subreddit-add" data-role="button" data-icon="add" data-align="left" data-rel="actionsheet"></a>
+					<span data-role="view-title"></span>
+					<a data-role="button" data-click="toggleDeleteButtons" data-align="right" class="toggleButton">Edit</a>
+				</div>
+			</header>
+			<ul data-role="listview" data-style="inset" id="lstBikes"></ul>
 		</div>
 
 		<div data-role="view" id="tabstrip-devtools" data-title="DevTools">
@@ -77,7 +104,7 @@
 				<div data-role="tabstrip">
 					<a href="#tabstrip-play" data-icon="play">Run/Stop</a>
 					<a href="#tabstrip-map" data-icon="globe" id="theMap">Map</a>
-					<a href="#tabstrip-bikes" data-icon="contacts">Bikes</a>
+					<a href="#tabstrip-bikeslist" data-icon="contacts">Bikes</a>
 					<a href="#tabstrip-devtools" data-icon="organize" id="devtools">Dev.Tools</a>
 				</div>
 			</div>
