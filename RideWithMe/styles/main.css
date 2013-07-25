@@ -1,8 +1,3 @@
-body
-{
-    font: Arial, sans-serif;
-}
-
 .buttonArea,
 .footerText,
 #geoLocationContainer,
@@ -12,15 +7,88 @@ body
     text-align: center;
 }
 
-#txtName
-{
-    border: 1px solid #AAA;
-    border-radius: 15px;
-    position:static;
-    margin-left: 1em;
-    margin-top: 0.3em;
-    margin-bottom: 0.3em;
-    background:white;
-    color: black;
-    padding: 7px;
+.dataConnection{
+    margin-bottom: 10px;
+}
+
+#startStop{
+    text-align: center; margin-top: 40px;
+}
+
+#wrench{
+    text-align: center;
+}
+
+#lblRunStop{
+    margin-top: -70px;
+    margin-bottom: 70px;
+}
+
+#imgStartStop{
+    width: 120px;
+}
+
+#showAllRiders{
+    text-align: center; 
+    font-size: 0.8em;
+}
+
+#lblDataConnection2{
+    position: absolute;
+    top: 70px;
+    left: 10px;
+    color: Red;
+}
+
+#imgZoom{
+    position: absolute; top: 10px; left: 10px; width: 51px;
+}
+
+#txtRiderId{
+    color: gray;
+}
+
+.km-android .km-button{
+    background-color: rgb(128,128,128);
+}
+
+.mechanic{}
+.km-android .km-view .km-content .km-list > li {
+}
+.km-android .km-view .km-navbar .km-button {
+    background-color: rgb(76, 76, 76);
+}
+.km-android .km-view .km-navbar {
+    background-color: rgb(0, 0, 0);
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAUCAYAAACEYr13AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAaJJREFUeNqUks1ugkAQx4FdRUUq4EeTXlqTNo16gcZ40hfoS/SNfCx7a9OTTW+aNLERCEKQb+iQ1IYa2E0n2Zgd3P/8Z+bHDofDK+YnEELsaDTSeJ6PmYoIggCv1+vXJEmy/M4VP3a7Xb7X6zGkGAwGbP6/0/2PwHQ6vW61Wpgk0Gg00Gw2u/l1LcuyOJ/PpcVicYcxlkzTDKMoSkki+RtVVaVOpxOyy+XyKQzDZL/fe7quB67rxgwlBEHA0Crf7/ebeLVafTH/jLxIfjabjYurJn04HETHcS7AHV+v1wNRFG2w7JxvCJc9NgxDsm3bh3hO09SEnAJzuY/jWFYUxYJBRpUCYK0JVS34fTnlYOc63HWorh6PR6EowJW1AALvZXlw8MGybFbMcSUT9qCKVzE8DzjxiQLnpNFI5Wik0UhF4/H4lkTadrv1SaSWbSHe7XY+WG1PJpMHTdNQgVT/nFRMI41GJYK1PAI0bVgRBxZjOCntUQ4btNIBp5cIEP2Engw4ClAn1mq1iCRyItWyrBDW/YazLEtJpNFI5Wik0Uj9FmAAlmwVK4mYI6QAAAAASUVORK5CYII=");
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAUCAYAAACEYr13AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAaJJREFUeNqUks1ugkAQx4FdRUUq4EeTXlqTNo16gcZ40hfoS/SNfCx7a9OTTW+aNLERCEKQb+iQ1IYa2E0n2Zgd3P/8Z+bHDofDK+YnEELsaDTSeJ6PmYoIggCv1+vXJEmy/M4VP3a7Xb7X6zGkGAwGbP6/0/2PwHQ6vW61Wpgk0Gg00Gw2u/l1LcuyOJ/PpcVicYcxlkzTDKMoSkki+RtVVaVOpxOyy+XyKQzDZL/fe7quB67rxgwlBEHA0Crf7/ebeLVafTH/jLxIfjabjYurJn04HETHcS7AHV+v1wNRFG2w7JxvCJc9NgxDsm3bh3hO09SEnAJzuY/jWFYUxYJBRpUCYK0JVS34fTnlYOc63HWorh6PR6EowJW1AALvZXlw8MGybFbMcSUT9qCKVzE8DzjxiQLnpNFI5Wik0UhF4/H4lkTadrv1SaSWbSHe7XY+WG1PJpMHTdNQgVT/nFRMI41GJYK1PAI0bVgRBxZjOCntUQ4btNIBp5cIEP2Engw4ClAn1mq1iCRyItWyrBDW/YazLEtJpNFI5Wik0Uj9FmAAlmwVK4mYI6QAAAAASUVORK5CYII=");
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAUCAYAAACEYr13AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAaJJREFUeNqUks1ugkAQx4FdRUUq4EeTXlqTNo16gcZ40hfoS/SNfCx7a9OTTW+aNLERCEKQb+iQ1IYa2E0n2Zgd3P/8Z+bHDofDK+YnEELsaDTSeJ6PmYoIggCv1+vXJEmy/M4VP3a7Xb7X6zGkGAwGbP6/0/2PwHQ6vW61Wpgk0Gg00Gw2u/l1LcuyOJ/PpcVicYcxlkzTDKMoSkki+RtVVaVOpxOyy+XyKQzDZL/fe7quB67rxgwlBEHA0Crf7/ebeLVafTH/jLxIfjabjYurJn04HETHcS7AHV+v1wNRFG2w7JxvCJc9NgxDsm3bh3hO09SEnAJzuY/jWFYUxYJBRpUCYK0JVS34fTnlYOc63HWorh6PR6EowJW1AALvZXlw8MGybFbMcSUT9qCKVzE8DzjxiQLnpNFI5Wik0UhF4/H4lkTadrv1SaSWbSHe7XY+WG1PJpMHTdNQgVT/nFRMI41GJYK1PAI0bVgRBxZjOCntUQ4btNIBp5cIEP2Engw4ClAn1mq1iCRyItWyrBDW/YazLEtJpNFI5Wik0Uj9FmAAlmwVK4mYI6QAAAAASUVORK5CYII=");
+    background-repeat: repeat;
+    background-position: 0% 0%;
+}
+.km-android .km-view .km-content {
+    background-color: rgb(0, 0, 0);
+    background-image: none;
+    background-image: none;
+    background-image: none;
+    background-repeat: repeat;
+    background-position: 0% 0%;
+    font-weight: 400;
+    font-style: normal;
+    line-height: normal;
+    text-shadow: #2e2e2e;
+}
+.km-android .km-view .km-content .km-list > li .km-icon {
+    color: rgb(255, 255, 255);
+}
+.km-android .km-view .km-content .km-list .km-state-active .km-listview-link {
+    background-color: rgb(0, 0, 0);
+    color: #ff0000;
+}
+.km-android .km-view .km-content .km-list .km-state-active .km-listview-link .km-icon {
+    color: rgb(255, 255, 255);
+}
+
+.btnEditDelBikeInList{
+    display: none;
 }

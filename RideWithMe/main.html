@@ -7,104 +7,189 @@
 		<script src="kendo/js/jquery.min.js"></script>
 		<script src="kendo/js/kendo.mobile.min.js"></script>
 		<script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+		<script src="scripts/infobox.js"></script>
+		<script src="scripts/Helpers.js"></script>
+		<script src="scripts/RWMCulture.js"></script>
+		<script src="scripts/RWMMechanic.js"></script>
+		<script src="scripts/RWMCompass.js"></script>
+		<script src="scripts/RWMKnownRider.js"></script>
+		<script src="scripts/RWMMap.js"></script>
+		<script src="scripts/RWMSettings.js"></script>
+		<script src="scripts/RWMContacts.js"></script>
+		<script src="scripts/RWMConnectionAndBattery.js"></script>
 		<script src="scripts/RideWithMe.js"></script>
 		<link href="kendo/styles/kendo.mobile.all.min.css" rel="stylesheet" />
 		<link href="styles/main.css" rel="stylesheet" />
 	</head>
 	<body>
 		<div data-role="view" id="tabstrip-play" data-title="Ride With Me">
-
-			<p id="startStop" style="text-align: center;">
-				<img src="images/Start.png" style="width: 120px;" onclick="startRide()" id="imgStartStop"/>
+			<div id="startStop">
+				<div class="dataConnection">NO DATA CONNECTION</div>
+				<div>
+					<img src="images/Start.png" onclick="startRide()" id="imgStartStop"/>
+				</div>
+				<div id="lblRunStop" onclick="startRide()">stst</div>
+			</div>
+			<p id="showAllRiders">
+				<span> <span id="lblShowAllRiders"></span>
+					<input data-role="switch" id="cbOneOrAllTypes"/> <span id="lblOnlyMyType"></span> </span>
 			</p>
-			<p id="showAllRiders" style="text-align: center; font-size: 0.8em;">
-				<span>Show all riders
-					<input type="checkbox" data-role="switch" data-off-label="All" data-on-label="Type"/> Only My Type</span>
-			</p>
-			<p id="wrench" style="text-align: center;">
-				<img src="images/wrench_256.png" Width="60%"/>
+			<p id="wrench">
+				<img src="images/WrenchButtonNeutral.png" style="width: 120px;" onclick="startStopTrouble()" class="mechanic"/>
 			</p>
 		</div>
 
-		<div data-role="view" id="tabstrip-map" data-title="Map" data-stretch="true" data-show="showMapTab">
-			<div id="map-canvas" style="border: 2px solid gray;"></div>
-		</div>
-
-		<div data-role="view" id="tabstrip-bikes" data-title="Bikes">
-            <header data-role="header">
+		<div data-role="view" id="tabstrip-choosebike">
+			<header data-role="header">
 				<div data-role="navbar">
-					<a href="#tabstrip-bikeslist" data-role="backbutton" data-align="left" data-rel="actionsheet">Back</a>
-					<span data-role="view-title"></span>
-					<a data-role="button" data-click="saveBike" data-align="right" class="toggleButton">Save</a>
+					<span data-role="view-title" id="lblChooseBikeTitle">Choose Bike Title</span>
+				</div>
+			</header>
+			<ul data-role="listview" data-style="inset" id="selBikes" data-layout="databinding"></ul>
+			<script id="choosebikeTemplate" type="text/x-kendo-template">
+				<div>${Description}</div>
+			</script>
+		</div>
+
+		<div data-role="view" id="tabstrip-map" data-title="Map" data-stretch="true" data-show="afterShowMapTab">
+			<div id="map-canvas"></div>
+			<img src="images/Zoom.png" onclick="zoomToDefault()" id="imgZoom"/>
+			<div class="dataConnection" id="lblDataConnection2">NO DATA CONNECTION</div>
+		</div>
+
+		<div data-role="view" id="tabstrip-bikes" data-show="applyDictionary">
+			<header data-role="header">
+				<div data-role="navbar">
+					<a data-role="backbutton" data-align="left" data-rel="actionsheet" onclick="focusBikeList()" data-icon="reply" id="lblCancel">c</a>
+					<span data-role="view-title" id="lblBikesTitle">bikes</span>
+					<a data-role="button" onclick="saveBikeAndFocusList()" data-align="right" class="toggleButton" data-icon="action" id="lblDone">d</a>
 				</div>
 			</header>
 			<ul data-role="listview" data-style="inset">
 				<li>
-					<span class="settinglabelspan">Pick Type</span>
-					<select id="selType" type="select">
-						<option>Mountain Bike</option>
-						<option>Road</option>
-						<option>Tour</option>
-					</select>
-				</li>
-				<li>
-					<span class="settinglabelspan">Pick Style</span>
-					<select id="selStyle" type="select">
-						<option>Ride</option>
-						<option>Competition</option>
-						<option>Recreation</option>
-						<option>Leisure</option>
-					</select>
-				</li>
-			</ul>
-			<ul data-role="listview" data-style="inset">
-				<li>
-					<a href="#" data-role="button" data-click="getNewId">Get New</a>
+					<a data-role="button" data-click="getNewId" id="lblGetNew">n</a>
 					<span class="settinglabelspan">ID</span>
-					<input id="txtRiderId" readonly="readonly" type="text" style="color: gray;"/>
+					<input id="txtRiderId" readonly="readonly" type="text"/>
 				</li>
 				<li>
-					<span class="settinglabelspan">Description</span>
+					<span class="settinglabelspan" id="lblDescription">de</span>
 					<input id="txtDescription" type="text"/>
 				</li>
 			</ul>
+			<ul data-role="listview" data-style="inset">
+				<li>
+					<span class="settinglabelspan" id="lblRideType"></span>
+					<ul data-role="listview" data-style="inset" id="selType">
+						<li>
+							<label>
+								<img src="images/Arrow0.png"/>
+								<input name="typeRadio" type="radio" checked="checked" id="sel01" />
+								<span id="lblMountainBike"></span>
+							</label>
+						</li>
+						<li>
+							<label>
+								<img src="images/Arrow1.png"/>
+								<input name="typeRadio" type="radio" id="sel02" />
+								<span id="lblRoad"></span>
+							</label>
+						</li>
+						<li>
+							<label>
+								<img src="images/Arrow2.png"/>
+								<input name="typeRadio" type="radio" id="sel03"/>
+								<span id="lblTour"></span>
+							</label>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<span class="settinglabelspan" id="lblRideStyle"></span>
+					<ul data-role="listview" data-style="inset" id="selStyle">
+						<li>
+							<label>
+								<img src="images/Path0.png"/>
+								<input name="styleRadio" type="radio" checked="checked" id="sel11"/>
+								<span id="lblCompetition"></span>
+							</label>
+						</li>
+						<li>
+							<label>
+								<img src="images/Path1.png"/>
+								<input name="styleRadio" type="radio" id="sel12"/>
+								<span id="lblRecreation"></span>
+							</label>
+						</li>
+						<li>
+							<label>
+								<img src="images/Path2.png"/>
+								<input name="styleRadio" type="radio" id="sel13"/>
+								<span id="lblLeisure"></span>
+							</label>
+						</li>
+					</ul>
+				</li>
+			</ul>
+
 			<input type="hidden" id="txtBikeId" />
 		</div>
-		<div data-role="view" id="tabstrip-bikeslist" data-title="Bikes">
+
+		<div data-role="view" id="tabstrip-bikeslist" data-show="applyDictionary">
 			<header data-role="header">
 				<div data-role="navbar">
-					<a href="#subreddit-add" data-role="button" data-icon="add" data-align="left" data-rel="actionsheet"></a>
-					<span data-role="view-title"></span>
-					<a data-role="button" data-click="toggleDeleteButtons" data-align="right" class="toggleButton">Edit</a>
+					<a data-role="button" data-icon="add" data-align="left" data-rel="actionsheet" onclick="newBike()" id="lblAdd">a</a>
+					<span data-role="view-title" id="lblBikesTitle2">bikes</span>
+					<a data-role="button" data-click="btnEditBike" data-align="right" class="toggleButton" data-icon="compose" id="btnEditBikeList">e</a>
 				</div>
 			</header>
 			<ul data-role="listview" data-style="inset" id="lstBikes"></ul>
+			<script id="bikeEditTemplate" type="text/x-kendo-template">
+				<a id="btnListBikeEdit">${Description}</a>
+				<a id="btnListBikeDelete" class="btnEditDelBikeInList" data-role="detailbutton" data-style="rowdelete"></a>
+			</script>
+		</div>
+
+		<div data-role="view" id="tabstrip-contactlist" data-title="Create/Add To Contacts" data-show="applyDictionary">
+			<ul data-role="listview" data-style="inset" id="selContacts" data-layout="databinding"></ul>
+			<script id="contactsTemplate" type="text/x-kendo-template">
+				<div>${name2}</div>
+			</script>
 		</div>
 
 		<div data-role="view" id="tabstrip-devtools" data-title="DevTools">
-			<h2>Status</h2>
+			<div id="status">
+				<h2>Version 9</h2>
+				<ul id="statusList"></ul>
+			</div>
 			<div id="devToolsReplies"></div>
-			<div id="status">Status</div>
 			<div id="devToolsOptions">
 				<h2>Developer Tools Options</h2>
 				<span>Update Frequency in milliseconds:</span>
-				<input type="text" value="5000" id="txtUpdateFrequency"/>
+				<input type="text" value="60000" id="txtUpdateFrequency"/>
 				<a id="updateFrequencyButton" data-role="button" data-click="updateFrequency" data-icon="refresh">Update</a>
 			</div>
+			<div id="devToolsClearLocalStorage">
+				<a data-role="button" onclick="clearLocalData()">Clear local storage</a>
+			</div>
+			<div>
+				<h2>Contacts</h2>
+				<input type="text" value="" id="txtTestContact"/>
+				<a data-role="button" onclick="searchContacts()">Search contact</a>
+				<ul id="testContactList"></ul>
+			</div>
+			<div>
+				<a data-role="button" onclick="dummyContactTest()">Test Add To Contact</a>
+			</div>
+
 		</div>
 
 		<div data-role="layout" data-id="mobile-tabstrip">
-			<header data-role="header" style="display: none;">
-				<div data-role="navbar">
-					<span data-role="view-title"></span>
-				</div>
-			</header>
-
 			<div data-role="footer">
 				<div data-role="tabstrip">
-					<a href="#tabstrip-play" data-icon="play">Run/Stop</a>
+					<!-- leave the innerHTML as is - if removed, multilanguage is not supported -->
+					<a href="#tabstrip-play" data-icon="play" id="lblRunStop">Run/Stop</a>
 					<a href="#tabstrip-map" data-icon="globe" id="theMap">Map</a>
-					<a href="#tabstrip-bikeslist" data-icon="contacts">Bikes</a>
+					<a href="#tabstrip-bikeslist" data-icon="contacts" id="lblBikes">Bikes</a>
 					<a href="#tabstrip-devtools" data-icon="organize" id="devtools">Dev.Tools</a>
 				</div>
 			</div>
