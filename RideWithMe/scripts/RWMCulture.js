@@ -1,5 +1,7 @@
 function english(){
-    this.runStop = "Run/Stop";
+    this.runStop = "Start/Stop";
+    this.runTxt = "Start";
+    this.stopTxt = "Stop";
     this.map = "Map";
     this.bikes = "Bikes";
     this.showAllRiders = "Show all riders";
@@ -28,10 +30,13 @@ function english(){
     this.myBike="My bike";
     this.view = "View";
 	this.dataConnection="NO DATA CONNECTION";
+    this.trouble="Trouble";
 }
 
 function deutsch(){
     this.runStop = "Start/Stop";
+    this.runTxt = "Start";
+    this.stopTxt = "Stop";
     this.map = "Karte";
     this.bikes = "Räder";
     this.showAllRiders = "Zeige alle";
@@ -60,6 +65,7 @@ function deutsch(){
     this.myBike="Mein Fahrrad";
     this.view = "Anzeigen";
 	this.dataConnection="Keine Datenverbindung";
+    this.trouble="Probleme";
 }
 
 function applyDictionary(){
@@ -88,6 +94,7 @@ function applyDictionary(){
     $("#lblLeisure").html(md.leisure);
 	$(".lblDataConnection").html(md.dataConnection);
     $("#lblRunStop").html(md.runStop);
+    $("#lblTrouble").html(md.trouble);
 }
 
 

@@ -11,7 +11,7 @@ function calcAngle(x1, y1, x2, y2) {
 function afterShowMapTab() {
 	if (model.map == undefined) {
 		geolocationApp = new geolocationApp();
-		geolocationApp.run();
+    	geolocationApp.run();
 	}
     refreshMap();
 }
@@ -212,14 +212,29 @@ function RenderRiders() {
 	}
 }
 
-function updateRWM(lat, lon) {
+function updateRWM() {
+    if (model.timerUpdateRWM) {
+        self.clearTimeout(model.timerUpdateRWM);
+        model.timerUpdateRWM = 0;
+    }
+    
 	if (model.current.RiderId == undefined)
 		return;
+    
+    if (model.currentPositionMarker == undefined)
+    {
+        // ? We should be running, so since we are not, try again in a few seconds
+        model.timerUpdateRWM = self.setTimeout( function() { UpdateRWM(); }, 4000);
+        return;
+    }
+    
+    var curPos = model.currentPositionMarker.getPosition();
+    
 	var typestyle = model.current.Type * 10 + model.current.Style;
 	if (model.hasTrouble)
 		typestyle = -1;
 	var showAll = $("#cbOneOrAllTypes").val() == "on" ? "true" : "false";
-	var myUrl = urls.updateRWMUrl + "riderId=" + model.current.RiderId + "&lat=" + lat + "&lon=" + lon + "&heading=" + model.markerIcon.rotation + 
+	var myUrl = urls.updateRWMUrl + "riderId=" + model.current.RiderId + "&lat=" + curPos.lat() + "&lon=" + curPos.lon() + "&heading=" + model.markerIcon.rotation + 
 				"&type=" + typestyle + "&pelSize=10&showAll=" + showAll + "&ts=" + new Date().getTime();
 	if (!(navigator.connection.type == Connection.NONE)) {
 		$.ajax({
@@ -233,24 +248,28 @@ function updateRWM(lat, lon) {
 				UpdateRiderData(data)
 			},
 			fail: function () {
-				console.log("Error retrieving string");
+				console.log("Error calling " + myUrl);
 			},
 			error: function (xhr, status, error) {
 				console.log("UpdateRWM" + ':' + error);
 			}
 		});
 	}
+    
+    // Start another loop if we are running
+    if (model.isStarted)
+        model.timerUpdateRWM = self.setTimeout( function() { UpdateRWM(); }, model.refreshTime);
 }
 
 function refreshMap() {
 	if (model.timer) {
-		window.clearTimeout(model.timer);
+		window.clearInterval(model.timer);
 		model.timer = 0;
 	}
 	
 	var options = {
 		enableHighAccuracy: true,
-		maximumAge: 0 // parseInt($("#txtUpdateFrequency").val()) / 2
+		maximumAge: 0 
 	};
 	navigator.geolocation.getCurrentPosition(
 		function() {
@@ -262,16 +281,21 @@ function refreshMap() {
 		options)
 		
 	// Start an automatic refresh timer if we are running
-	if (model.isStarted) {
-		model.timer = window.setTimeout(function() {
-			refreshMap();
-		}, model.refreshTime);
-	}
+    model.timer = window.setInterval(function() {
+        refreshMap();
+    }, model.refreshBase);
 }
 
 function zoomToDefault() {
-	model.map.panTo(model.currentPositionMarker.position);
-	model.map.setZoom(15);
+    model.panOff = !model.panOff;
+
+    if (model.panOff) {
+        $("#imgZoom").attr("src","images/PanOff.png");
+    } else {
+        $("#imgZoom").attr("src","images/Zoom.png");
+        model.map.panTo(model.currentPositionMarker.position);
+        model.map.setZoom(15);
+    }
 }
 
 geolocationApp.prototype = {
@@ -284,7 +308,6 @@ geolocationApp.prototype = {
 		var that = this;
 		
 		that._setResults(model.dictionary.waitingForGeolocationInformation);
-		//refreshMap();
 	},
     
 	_onSuccess:function(position) {
@@ -303,9 +326,11 @@ geolocationApp.prototype = {
 			google.maps.event.addListener(model.map, 'idle', BoundsChanged);
 		}
 		if (model.currentPositionMarker == undefined) {
-			if (model.current && model.current.Type) {
-				var fColor = model.current.Type == 1 ? "#DD88EE" : model.current.Type == 2 ? "#ffff19" : model.current.Type == 3 ? "#194fff" : "#ffffff";
-				model.markerIcon = { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 5,  fillColor: fColor, fillOpacity: 1, strokeWeight: 1, rotation: 0 };
+			if (model.current) {
+                // Create my icon
+                
+                var fColor = model.current.Type == 1 ? "#DD88EE" : model.current.Type == 2 ? "#ffff19" : model.current.Type == 3 ? "#194fff" : "#ffffff";
+                model.markerIcon = { path: model.bikeSymbol[ (!model.isStarted ? 0 : model.hasTrouble ? 2 :  1)], scale: 5,  fillColor: fColor, fillOpacity: 1, strokeWeight: 2, rotation: 0 }; //google.maps.SymbolPath.FORWARD_CLOSED_ARROW
 				model.currentPositionMarker = new google.maps.Marker({
 					map: model.map,
 					position: curPos,
@@ -313,88 +338,71 @@ geolocationApp.prototype = {
 				});
 				var can = $("#map-canvas");
 				can.css("height", can[0].parentElement.clientHeight);
-                
-                // click on my own arrow
-                google.maps.event.addListener(model.currentPositionMarker, 'click', function() {
-                    var ctn = '<img src="' + (model.isStarted ? "images/Stop.png" : "images/Start.png") + '" style="width: 80px; margin-left: 10px;" onclick="startRide()" />';
-
-                    if (model.current.Type != 0) {
-                        ctn = '<span>' + ctn + '<img src="' + (model.hasTrouble ? "images/WrenchButtonOn.png": "images/WrenchButtonNeutral.png") + '" style="width: 80px; margin-left: 20px;" onclick="startStopTrouble()" class="mechanic"/></span>';                       
+				// click on my own arrow
+				google.maps.event.addListener(model.currentPositionMarker, 'click', function() {
+					var ctn = '<table>'
+                            + '<tr>'
+                            +     '<td  style="width: 80px; height: 80px; margin-left: 20px; text-align: center; vertical-align:middle">'
+                            +         '<img src="' + (model.isStarted ? 'images/Stop.png' : 'images/Start.png') + '" style="width: 80px;" onclick="startRide()" id="imgStartStop"/>'
+                            +         '<div>' + (model.isStarted ? model.dictionary.stopTxt : model.dictionary.runTxt) + '</div>'
+                            +     '</td>'
+                            +     '<td style="width: 80px; height: 80px; margin-left: 20px; text-align: center; vertical-align:middle">'
+                            +         '<div><img src="' + (model.hasTrouble ? 'images/WrenchButtonOn.png' : 'images/WrenchButtonNeutral.png') + '" style="width: 80px; margin-left: 20px;" onclick="startStopTrouble()" class="mechanic"/>'
+                            +         '<div>' + model.dictionary.trouble + '</div></div>'
+                            +     '</td>'
+                            + '</tr>'
+                        + '</table>';
+					model.infoBoxText.innerHTML = ctn;
+					model.infoBox.open(model.map, this);  
+				});
+			}
+        } else {
+            // Update my icon and position
+            model.currentPositionMarker.setPosition(curPos);
+            // we need this one later for the compass.
+            model.markerIcon = {
+                path: model.bikeSymbol[ (!model.isStarted ? 0 : model.hasTrouble ? 2 : 1)], 
+                scale: model.markerIcon.scale,  
+                fillColor: model.current.Type == 1 ? "#DD88EE" : model.current.Type == 2 ? "#ffff19" : model.current.Type == 3 ? "#194fff" : "#ffffff", 
+                fillOpacity: model.markerIcon.fillOpacity, 
+                strokeWeight: model.markerIcon.strokeWeight,
+                rotation: model.markerIcon.rotation
+            };
+            model.currentPositionMarker.setIcon(model.markerIcon);
+        }
+        
+        var weMoved = Math.abs(Math.floor(model.prevLat * 10000) - Math.floor(position.coords.latitude * 10000)) 
+                    + Math.abs(Math.floor(model.prevLon * 10000) - Math.floor(position.coords.longitude * 10000));
+        
+		if (weMoved) {
+            if (!model.panOff) {
+                model.map.panTo(curPos);
+            }
+            
+            // Save the previous position
+			model.prevLat = position.coords.latitude;
+			model.prevLon = position.coords.longitude;
+            
+            // re-initialize the off-Timer
+            if (model.offTimer) {
+                window.clearTimeout(model.offTimer);
+                model.offTimer = 0;
+            }
+            if (model.isStarted) {
+                model.offTimer = window.setTimeout(function() {
+                    if (model.current.Type > 0) {
+                        // AutoStop ride if not mechanics
+                        stopRide();
                     }
-                    model.infoBoxText.innerHTML = ctn;
-                    model.infoBox.open(model.map, this);
-                 
-                });
-                
-			}
-		}
-		if (model.prevLat != position.coords.latitude || model.prevLon != position.coords.longitude) {
-			if (model.currentPositionMarker) {
-				model.currentPositionMarker.setPosition(curPos);
-				// we need this one later for all the other markers and their paths.
-				// ToDo:  If I am broken, make my icon a wrench instead of arrow
-				model.markerIcon = {
-					path: model.markerIcon.path, 
-					scale: model.markerIcon.scale,  
-					fillColor: model.markerIcon.fillColor, 
-					fillOpacity: model.markerIcon.fillOpacity, 
-					strokeWeight: model.markerIcon.strokeWeight,
-					rotation: model.markerIcon.rotation
-				};
-				model.currentPositionMarker.setIcon(model.markerIcon);
+                }, 3600000);
+            }
 			
-				// re-initialize the off-Timer
-				if (model.offTimer) {
-					window.clearTimeout(model.offTimer);
-					model.offTimer = 0;
-				}
-				if (model.isStarted) {
-					model.offTimer = window.setTimeout(function() {
-						if (model.current.Type > 0) {
-							// AutoStop ride if not mechanics
-							stopRide();
-						}
-					}, 3600000);
-				}
-			
-				var speed = position.coords.speed;
-				if (speed > 1.5) {
-					// We are moving more than 1.5 meter per second.  Auto pan
-					model.map.panTo(model.currentPositionMarker.position);
-				}
-			
-				// Setup refresh rate based upon current speed
-				if (speed > 20) {
-					// > 72 kph
-					model.refreshTime = model.refreshBase;
-				}
-				else if (speed > 15) {
-					// 54 kph
-					model.refreshTime = model.refreshBase * 2;				
-				}
-				else if (speed > 10) {
-					// 36 kph
-					model.refreshTime = model.refreshBase * 3;				
-				}
-				else if (speed > 5) {
-					// 18 kph
-					model.refreshTime = model.refreshBase * 4;				
-				}
-				else {
-					// moving slower than 18 kph
-					model.refreshTime = model.refreshBase * 6;
-				}
-			}
 		}
 		
 		// update Riders every time, but only when started
-		if (model.isStarted) {
-			updateRWM(position.coords.latitude, position.coords.longitude);
-
-			// Save the previous position
-			model.prevLat = position.coords.latitude;
-			model.prevLon = position.coords.longitude;
-		}
+//		if (model.isStarted) {
+//			updateRWM(position.coords.latitude, position.coords.longitude);
+//		}
 	},
     
 	_onError:function(error) {

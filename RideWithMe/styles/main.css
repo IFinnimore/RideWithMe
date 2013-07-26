@@ -1,5 +1,3 @@
-.buttonArea,
-.footerText,
 #geoLocationContainer,
 #helloWorldInput,
 #helloWorldText
@@ -19,7 +17,8 @@
     text-align: center;
 }
 
-#lblRunStop{
+#lblRunStop,
+#lblTrouble{
     margin-top: -70px;
     margin-bottom: 70px;
 }

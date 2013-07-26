@@ -8,7 +8,8 @@ function datacontainer() {
 	this.prevLat;
 	this.prevLon;
 	this.markerIcon;
-	this.timer;
+	this.timer; // Refresh Position Timer.  Always running
+    this.timerUpdateRWM; // Runs only when user presses start
 	this.markersArray;
 	this.polylineArray;
 	this.mechanicMarkersArray;
@@ -31,6 +32,8 @@ function datacontainer() {
 	this.refreshTime;
 	this.addFirstBike;
 	this.oneOrAllTypes;
+    this.bikeSymbol;
+    this.panOff;
 }
 
 function model() {
@@ -79,7 +82,7 @@ $(document).ready(function() {
 		,pane: "floatPane"
 		,enableEventPropagation: false
 	};
-	model.infoBox = new InfoBox(model.infoBoxOptions);
+    model.infoBox = new InfoBox(model.infoBoxOptions);
 	model.markersArray = [];
 	model.polylineArray = [];
 	model.mechanicMarkersArray = [];
@@ -88,10 +91,31 @@ $(document).ready(function() {
 	model.hasTrouble = false;
 	model.bikeListEditMode = false;
 	model.refreshBase = 5000; // Basic refresh cycle is one per 5 seconds
-	model.refreshTime = model.refreshBase; // Default refresh time once per ten seconds
+	model.refreshTime = model.refreshBase * 12; // Default refresh time once per ten seconds
+    
+    // SVG paths for the symbols about the bike
+    model.bikeSymbol = [];
+     model.bikeSymbol[0] = 'M1 2.5L2.5 1 2.5 -1 1 -2.5 -1 -2.5 -2.5 -1 -2.5 1 -1 2.5z M1 -4L0 -6 -1 -4z' // me stopped
+     model.bikeSymbol[1] = 'M0 1.5L2 2.5 0 -2.5 -2 2.5z'; // me running
+     model.bikeSymbol[2] = 'M0 1L2 3 C0.5 4.5 2.5 6.5 4 5L3 4 4 3 5 4 C6.5 2.5 4.5 0.5 3 2L-2 -3 C-0.5 -4.5 -2.5 -6.5 -4 -5L-3 -4 -4 -3 -5 -4C-6.5 -2.5 -4.5 -0.5 -3 -2z' // me.Wrench
+
+    // defaulting to an empty "Current"
+    model.current = {
+        Style: 0,
+        Type: 0,
+        RiderId: undefined
+    };
+    this.panOff = false;
+    
+    model.prevLat = 0;
+    model.prevLon = 0;
 
 	model.offTimer = 0; // handle for timer that fires to automatically stop app
-	model.timer = 0; // handle for timer that fires to refresh map;
+	model.timer = window.setInterval(function() {
+			refreshMap();
+		}, model.refreshBase);; // handle for timer that fires to refresh map;
+    model.timerUpdateRWM = 0; // Handle for timer that fires to update ridewithme
+    
 	model.culture = navigator.language.substr(0, 2);
 	model.addFirstBike = false;
 	var oneOrAll = localStorage.getItem("oneOrAllTypes");
@@ -130,6 +154,9 @@ function onDeviceReady() {
 		switchData.bind("change", function(e) {
 			localStorage.setItem("oneOrAllTypes", e.checked);
 		});
+    
+    // Start the compass
+    startCompass();
 }
 
 function startRide() {
@@ -164,7 +191,15 @@ function startRide() {
 				break;
 		}
 		$("#imgStartStop").attr("src", "images/Stop.png");
-		startCompass();
+        // Paint the current map
+        refreshMap();
+        
+        // Reset to the default zoom and center me, turning on pan following
+        model.panOff = true;
+        zoomToDefault();
+        
+        // Start the UpdateRWM timer by updating RWM in 4 seconds (allows time for initial GPS location)
+        model.timerUpdateRWM = self.setTimeout( function() { UpdateRWM(); }, 4000);
 	}
 	else {
 		stopRide();
@@ -175,13 +210,30 @@ function stopRide() {
 	if (!model.isStarted)
 		return; // Not running, don't stop.
 
-    model.isStarted = false;
+    // Clear trouble
+    if (model.hasTrouble) {
+        startStopTrouble();
+    }
     
+    // we are stopped
+    model.isStarted = false;
+        
+    
+    // clear the "current" rider
+    model.current = {
+        Style: 0,
+        Type: 0,
+        RiderId: undefined
+    };
+    
+    // Set the start icon
     $("#imgStartStop").attr("src", "images/Start.png");
-    if (model.timer != 0)
-        clearTimeout(model.timer);
-
-    stopCompass();
+    
+    // Stop the update timer
+    if (model.timerUpdateRWM != 0) {
+        self.clearInterval(model.timerUpdateRWM);
+        model.timerUpdateRWM = 0;
+    }
     
     // Go to the Start/Stop screen (may already be there)
     location.href = "#tabstrip-play";
@@ -201,6 +253,5 @@ function stopRide() {
 			timeout: 15000
 		});
 	}
-    
-
+    refreshMap();
 }
