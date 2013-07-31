@@ -9,7 +9,7 @@ function onBackKeyDown() {
 // Battery low
 var isPaused = false;
 function onBatteryStatus(info) {
-	// the battery is critical, so stop the GPS and calling web service...  
+	// the battery may be critical, so stop the GPS and calling web service...  
 	// don't want to kill the battery!
     if (info.isPlugged) {
         // Level doesn't matter, we are plugged in

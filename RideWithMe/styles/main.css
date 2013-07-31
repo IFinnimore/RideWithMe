@@ -78,7 +78,8 @@
     background-repeat: repeat;
     background-position: 0% 0%;
 }
-.km-android .km-view .km-content {
+.km-android .km-view .km-content,
+.km-android #infoBox {
     background-color: rgb(0, 0, 0);
     background-image: none;
     background-image: none;
@@ -90,6 +91,11 @@
     line-height: normal;
     text-shadow: #2e2e2e;
 }
+
+.km-ios #infoBox {
+    background-color: White;
+}
+
 .km-android .km-view .km-content .km-list > li .km-icon {
     color: rgb(255, 255, 255);
 }
@@ -103,6 +109,10 @@
 
 .btnEditDelBikeInList{
     display: none;
+}
+
+.km-android #infoBox {
+    background-color: rgb(0, 0, 0);
 }
 
 #tabstrip-play .km-content

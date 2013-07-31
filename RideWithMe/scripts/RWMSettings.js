@@ -34,7 +34,8 @@ function getId() {
 			timeout: 15000,
 			success: function (data) {
 				$("#txtRiderId").val(data);
-				saveBike();
+                // why save here?
+				//saveBike();
 			},
 			fail: function () {
 				$("#devToolsReplies").html("Error retrieving string");
@@ -62,6 +63,7 @@ function newBike() {
 	$("#txtBikeId").val(bid);
 
 	if (model.bikersArray == undefined || model.bikersArray.length == 0) {
+        $("#txtRiderId").val('Loading');
 		getId();
 	}
 	else {
@@ -88,11 +90,7 @@ function editBike(bikeID) {
 			var bikeStyle = 'sel1' + bike.Style.toString().substring(0, 1);
             document.getElementById(bikeType).checked = true;
             document.getElementById(bikeStyle).checked = true;
-/*			var sel1 = $("#sel0" + bikeType);
-			sel1.attr("checked", "true");
-			var sel2 = $("#sel1" + bikeStyle);
-			sel2.attr("checked", "true");
-*/			break;   
+			break;   
 		}
 	}
 }
@@ -141,9 +139,13 @@ function getBikeId() {
 }
 
 function syncListOfBikes(bike) {
-	if (model.bikersArray == undefined)
+	if (model.bikersArray == undefined) {
 		model.bikersArray = [];
-	var bikeNumber = model.bikersArray.length;
+    }
+
+    var first = (model.bikersArray.length == 0 ? true : false);
+    
+    var bikeNumber = model.bikersArray.length;
 	for (var i = 0; i < model.bikersArray.length; i++) {
 		if (model.bikersArray[i].ID == bike.ID) {
 			bikeNumber = i;
@@ -152,6 +154,9 @@ function syncListOfBikes(bike) {
 	}
 	model.bikersArray[bikeNumber] = bike;
 	localStorage.setItem("Bikes", JSON.stringify(model.bikersArray));
+    
+    if (first)
+        initBikeListView();
 }
 
 function loadListOfBikes() {
@@ -172,7 +177,7 @@ function showAllBikesInBikeSelection() {
 		byx.dataSource.read();
 		return;
 	}
-	$("#selBikes").kendoMobileListView({
+    $("#selBikes").kendoMobileListView({
 		dataSource: kendo.data.DataSource.create({data: model.bikersArray}),
 		template: $("#choosebikeTemplate").html(),
 		click: function(bItem) {
@@ -189,14 +194,7 @@ function showAllBikesInBikeSelection() {
 }
 
 var IDToDel = "";
-
-function showAllBikesInList() {
-	var byx = $("#lstBikes").data("kendoMobileListView");
-	if (byx != undefined) {
-		byx.refresh();
-		byx.dataSource.read();
-		return;
-	}
+function initBikeListView() {
 	$("#lstBikes").kendoMobileListView({
 		dataSource: kendo.data.DataSource.create({data: model.bikersArray}),
 		template: $("#bikeEditTemplate").html(),
@@ -233,6 +231,15 @@ function showAllBikesInList() {
 		    }
 		}
 	});
+}
+function showAllBikesInList() {
+	var byx = $("#lstBikes").data("kendoMobileListView");
+	if (byx != undefined) {
+		byx.refresh();
+		byx.dataSource.read();
+		return;
+	}
+    initBikeListView();
 }
 
 function deleteBike() {

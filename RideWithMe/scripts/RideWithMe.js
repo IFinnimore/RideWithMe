@@ -42,19 +42,8 @@ function model() {
 
 document.addEventListener("deviceready", onDeviceReady, false);
 
+var alertCnt = 0;
 $(document).ready(function() {
-	/* ToDo 
-	a) Map laden und leer anzeigen, solange es noch keine map gibt -- Done
-	b) Beim erstmaligen Start nicht mit dem Bikes-Tab, sondern mit dem Start-Tab beginnen und 
-	den user auf den maps-tab verweisen, wenn es noch keine bikes gibt (siehe dort, wo derzeit der maps-tab als
-	erster tab geoeffnet wird) -- Done
-	c) die eigene Position nur aktualisieren wenn die Geschwindigkeit hoeher als 1.2 m/s ist. Damit wird vermieden dass 
-	der Cursor 'ruckelt' -- Done
-	d) es gibt einen 'resume'-event, der ausgeloest wird, wenn das Device vom Sleep mode zurueckkehrt. Hier sollten wir die
-	Karte wieder so ausrichten dass der User in der Mitte steht. Weiters ist die updateRWM()-Methode auszufuehren.
-	e) Delete-Button anstatt einer MessageBox anzeigen. Alle Messageboxes entfernen, sie werden am iPhone nicht korrekt
-	angezeigt. -- Done
-	*/
 	urls = {
 		getRiderIdUrl: "http://ridewithme.co/services/RideWithMe/RideWithMeService.svc/GetNewRiderId",
 		updateRWMUrl: "http://ridewithme.co/services/RideWithMe/RideWithMeService.svc/UpdateRwm/?",
@@ -64,9 +53,10 @@ $(document).ready(function() {
 		$("#txtUpdateFrequency").val(frequ);
 	model = new datacontainer();
 	model.infoBoxText = document.createElement("div");
-	model.infoBoxText.style.cssText = "border: 1px solid black; margin-top: 8px; background: white; padding: 5px;";
+    model.infoBoxText.id = "infoBox";
+	model.infoBoxText.style.cssText = "border: 1px solid black; margin-top: 8px; padding: 5px;";
 	model.infoBoxText.innerHTML = "My Text";
-	model.infoBoxOptions = {
+    model.infoBoxOptions = {
 		content: model.infoBoxText
 		,disableAutoPan: false
 		,maxWidth: 0
@@ -118,6 +108,7 @@ $(document).ready(function() {
     
 	model.culture = navigator.language.substr(0, 2);
 	model.addFirstBike = false;
+    model.bikersArray = [];
 	var oneOrAll = localStorage.getItem("oneOrAllTypes");
 	oneOrAll = oneOrAll == null ? false : oneOrAll;
 	if (oneOrAll == "true") {
