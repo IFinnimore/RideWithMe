@@ -315,7 +315,7 @@ InfoBox.prototype.getCloseClickHandler_ = function () {
 InfoBox.prototype.panBox_ = function (disablePan) {
 
   var map;
-  var bounds;
+  //var bounds;
   var xOffset = 0, yOffset = 0;
 
   if (!disablePan) {
@@ -366,7 +366,7 @@ InfoBox.prototype.panBox_ = function (disablePan) {
 
         // Move the map to the shifted center.
         //
-        var c = map.getCenter();
+        //var c = map.getCenter();
         map.panBy(xOffset, yOffset);
       }
     }

@@ -74,7 +74,6 @@ function newBike() {
 	}
 	$("#txtDescription").val(desc);
 	location.href = "#tabstrip-bikes";
-        alert('newBike:1');
 	applyDictionary();
 }
 
@@ -85,13 +84,15 @@ function editBike(bikeID) {
 			$("#txtDescription").val(bike.Description);
 			$("#txtBikeId").val(bike.ID);
 			$("#txtRiderId").val(bike.RiderId);
-			var bikeType = bike.Type.toString().substring(0, 1);
-			var bikeStyle = bike.Type.toString().substring(1);
-			var sel1 = $("#sel0" + bikeType);
-			sel1.attr("checked", "checked");
+			var bikeType = 'sel0' + bike.Type.toString().substring(0, 1);
+			var bikeStyle = 'sel1' + bike.Style.toString().substring(0, 1);
+            document.getElementById(bikeType).checked = true;
+            document.getElementById(bikeStyle).checked = true;
+/*			var sel1 = $("#sel0" + bikeType);
+			sel1.attr("checked", "true");
 			var sel2 = $("#sel1" + bikeStyle);
-			sel2.attr("checked", "checked");
-			break;   
+			sel2.attr("checked", "true");
+*/			break;   
 		}
 	}
 }
@@ -187,6 +188,8 @@ function showAllBikesInBikeSelection() {
 	});
 }
 
+var IDToDel = "";
+
 function showAllBikesInList() {
 	var byx = $("#lstBikes").data("kendoMobileListView");
 	if (byx != undefined) {
@@ -198,31 +201,53 @@ function showAllBikesInList() {
 		dataSource: kendo.data.DataSource.create({data: model.bikersArray}),
 		template: $("#bikeEditTemplate").html(),
 		click: function(bItem) {
-			if (bItem.target[0].id == "btnListBikeEdit") {
-				editBike(bItem.dataItem.ID);
+		    if (model.bikeListEditMode) {
+		        // we are editing
+				// final delete button lookup
+                var bCtx = bItem.item.context.children;
+                var dButn;
+                for (var i=0; i< bCtx.length; i++) {
+                    if (bCtx[i].id=="btnDelete") {
+                        dButn = bCtx[i];
+                        break;
+                    }
+                }
+                
+                // Check if the button is already visible.  If so, hide it, otherwise prepare for delete
+                if (dButn.style.display=="") {
+                    // Hide this button
+                    dButn.style.display="none";
+                }
+                else {
+                    // Show this button after hiding all others
+                    $(".btnFinalDelete").fadeOut(0);
+                    dButn.style.display="";
+                    IDToDel = bItem.dataItem.ID;
+                }
+		    } else {
+		        // We are not in list edit mode
+		        editBike(bItem.dataItem.ID);
 				location.href = "#tabstrip-bikes";
 				applyDictionary();
-				if (model.bikeListEditMode)
-					btnEditBike();
 				return;
-			}
-			else {
-				// delete
-				if (confirm("Delete " + bItem.dataItem.Description + "?")) {
-					for (var i = 0; i < model.bikersArray.length; i++) {
-						if (model.bikersArray[i].ID == bItem.dataItem.ID) {
-							model.bikersArray.splice(i, 1);
-							localStorage.setItem("Bikes", JSON.stringify(model.bikersArray));
-							showAllBikesInBikeSelection();
-							btnEditBike();
-							focusBikeList();
-							return;
-						}
-					}
-				}
-			}
+		    }
 		}
 	});
+}
+
+function deleteBike() {
+    if (IDToDel == "") return;
+    
+     for (var i = 0; i < model.bikersArray.length; i++) {
+    	if (model.bikersArray[i].ID == IDToDel) {
+    		model.bikersArray.splice(i, 1);
+    		localStorage.setItem("Bikes", JSON.stringify(model.bikersArray));
+    		showAllBikesInBikeSelection();
+    		btnEditBike();
+    		focusBikeList();
+    		return;
+    	}
+    }
 }
 
 function btnEditBike() {
@@ -243,6 +268,15 @@ function editBikeList() {
 function editBikeListEnd() {
 	$("#btnEditBikeList .km-text").html("Edit");
 	$(".btnEditDelBikeInList").fadeOut(100);
+    $(".btnFinalDelete").fadeOut(100);
+}
+
+function AfterTabstripBikes() {
+    // Apply Dictionary
+    applyDictionary();
+    
+    // Make sure we are not in edit mode
+    if (model.bikeListEditMode) btnEditBike();
 }
 
 /* Developer settings */

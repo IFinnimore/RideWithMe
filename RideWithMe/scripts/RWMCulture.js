@@ -30,6 +30,7 @@ function english(){
     this.myBike="My bike";
     this.view = "View";
 	this.dataConnection="NO DATA CONNECTION";
+    this.lowPower="BATTERY TOO LOW";
     this.trouble="Trouble";
 }
 
@@ -65,6 +66,7 @@ function deutsch(){
     this.myBike="Mein Fahrrad";
     this.view = "Anzeigen";
 	this.dataConnection="Keine Datenverbindung";
+    this.lowPower="Batterie zu niedrig";
     this.trouble="Probleme";
 }
 
@@ -92,9 +94,10 @@ function applyDictionary(){
     $("#lblCompetition").html(md.competition);
     $("#lblRecreation").html(md.recreation);
     $("#lblLeisure").html(md.leisure);
-	$(".lblDataConnection").html(md.dataConnection);
-    $("#lblRunStop").html(md.runStop);
+	$(".dataConnection").html(md.dataConnection);
+    $("#lblRunStop").html(md.runTxt);
     $("#lblTrouble").html(md.trouble);
+    $(".lowBattery").html(md.lowPower);
 }
 
 

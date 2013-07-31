@@ -28,12 +28,13 @@ function datacontainer() {
 	this.offTimerLastLat;
 	this.offTimerLastLon;
 	this.bounds;
-	this.refreshBase;	// Base refresh time.  Currently 60 seconds
+	this.refreshBase;	// Base refresh time.  Currently 5 seconds
 	this.refreshTime;
+    this.geolocationTime;
 	this.addFirstBike;
 	this.oneOrAllTypes;
     this.bikeSymbol;
-    this.panOff;
+    this.panOff; // Toggle for autopan
 }
 
 function model() {
@@ -91,7 +92,8 @@ $(document).ready(function() {
 	model.hasTrouble = false;
 	model.bikeListEditMode = false;
 	model.refreshBase = 5000; // Basic refresh cycle is one per 5 seconds
-	model.refreshTime = model.refreshBase * 12; // Default refresh time once per ten seconds
+	model.refreshTime = model.refreshBase * 12; // time for updating other riders
+    model.geolocationTime = model.refreshBase; // time for getting our position
     
     // SVG paths for the symbols about the bike
     model.bikeSymbol = [];
@@ -111,9 +113,7 @@ $(document).ready(function() {
     model.prevLon = 0;
 
 	model.offTimer = 0; // handle for timer that fires to automatically stop app
-	model.timer = window.setInterval(function() {
-			refreshMap();
-		}, model.refreshBase);; // handle for timer that fires to refresh map;
+	model.timer = 0; // handle for timer that updates position;
     model.timerUpdateRWM = 0; // Handle for timer that fires to update ridewithme
     
 	model.culture = navigator.language.substr(0, 2);
@@ -138,14 +138,19 @@ function onDeviceReady() {
 	loadListOfBikes();
 	refreshKnownRiders();
 	// When the battery gets critical, stop the ride no matter what
-	document.addEventListener("batterycritical", onBatteryLow, false);
+	document.addEventListener("batterystatus", onBatteryStatus, false);
 	
 	// Connect/ Disconnect event handlers
 	document.addEventListener("offline", onConnectionOffline, false);
 	document.addEventListener("online", onConnectionOnline, false);
 
 	// Resume event handler.  Done as a setTimeout to avoid race condition
-	document.addEventListener("resume", onResume, false);
+	document.addEventListener("pause", onResume, false);
+    document.addEventListener("resume", onResume, false);
+    
+    // Handle the back button on the Android
+    document.addEventListener("backbutton", onBackKeyDown, false);
+
 
 	// ToDo:  Verify server connectivity.
 	checkConnection();	
@@ -173,7 +178,6 @@ function startRide() {
 			startRide();
 			return;
 		}
-        
 		switch (model.bikersArray.length) {
 			case 0:
 				model.addFirstBike = true;
@@ -191,15 +195,17 @@ function startRide() {
 				break;
 		}
 		$("#imgStartStop").attr("src", "images/Stop.png");
+        $("#lblRunStop").html(model.dictionary.stopTxt);
         // Paint the current map
         refreshMap();
         
         // Reset to the default zoom and center me, turning on pan following
-        model.panOff = true;
-        zoomToDefault();
+        if (model.panOff) {
+            zoomToDefault();
+        }
         
         // Start the UpdateRWM timer by updating RWM in 4 seconds (allows time for initial GPS location)
-        model.timerUpdateRWM = self.setTimeout( function() { UpdateRWM(); }, 4000);
+        model.timerUpdateRWM = self.setTimeout( function() { updateRWM(); }, 4000);
 	}
 	else {
 		stopRide();
@@ -217,17 +223,10 @@ function stopRide() {
     
     // we are stopped
     model.isStarted = false;
-        
-    
-    // clear the "current" rider
-    model.current = {
-        Style: 0,
-        Type: 0,
-        RiderId: undefined
-    };
-    
+
     // Set the start icon
     $("#imgStartStop").attr("src", "images/Start.png");
+    $("#lblRunStop").html(model.dictionary.runTxt);
     
     // Stop the update timer
     if (model.timerUpdateRWM != 0) {
@@ -238,8 +237,11 @@ function stopRide() {
     // Go to the Start/Stop screen (may already be there)
     location.href = "#tabstrip-play";
     
+    // Clear out the old data.  If we dont share, we don't see others.
+    model.riderData = []; // Data back from RWM web sercie
+    
     // Make AJAX call if we are connected
-	if (!(navigatior.connecton.type == connection.NONE)) {
+	if (!(navigator.connection.type == Connection.NONE)) {
 		var typestyle = model.current.Type * 10 + model.current.Style;
 		if (model.hasTrouble)
 			typestyle = -1;
@@ -253,5 +255,17 @@ function stopRide() {
 			timeout: 15000
 		});
 	}
+    
+    // clear the "current" rider
+    model.current = {
+        Style: 0,
+        Type: 0,
+        RiderId: undefined
+    };
+    
+    // Redraw us
     refreshMap();
+    
+    // Clear everyone else out
+    RenderRiders();
 }

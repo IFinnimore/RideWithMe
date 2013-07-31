@@ -3,6 +3,8 @@
 	<head>
 		<title></title>
 		<meta charset="utf-8" />
+        <link href="kendo/styles/kendo.mobile.all.min.css" rel="stylesheet" />
+		<link href="styles/main.css" rel="stylesheet" />
 		<script src="cordova.js"></script>
 		<script src="kendo/js/jquery.min.js"></script>
 		<script src="kendo/js/kendo.mobile.min.js"></script>
@@ -18,13 +20,12 @@
 		<script src="scripts/RWMContacts.js"></script>
 		<script src="scripts/RWMConnectionAndBattery.js"></script>
 		<script src="scripts/RideWithMe.js"></script>
-		<link href="kendo/styles/kendo.mobile.all.min.css" rel="stylesheet" />
-		<link href="styles/main.css" rel="stylesheet" />
 	</head>
 	<body>
 		<div data-role="view" id="tabstrip-play" data-title="Ride With Me">
 			<div id="startStop">
 				<div class="dataConnection">NO DATA CONNECTION</div>
+                <div class="lowBattery">LOW BATTERY</div>
 				<div>
 					<img src="images/Start.png" onclick="startRide()" id="imgStartStop"/>
 				</div>
@@ -58,6 +59,7 @@
 			<div id="map-canvas"></div>
 			<img src="images/Zoom.png" onclick="zoomToDefault()" id="imgZoom"/>
 			<div class="dataConnection" id="lblDataConnection2">NO DATA CONNECTION</div>
+            <div class="lowBattery">LOW BATTERY</div>
 		</div>
 
 		<div data-role="view" id="tabstrip-bikes" data-show="applyDictionary">
@@ -137,7 +139,7 @@
 			<input type="hidden" id="txtBikeId" />
 		</div>
 
-		<div data-role="view" id="tabstrip-bikeslist" data-show="applyDictionary">
+		<div data-role="view" id="tabstrip-bikeslist" data-show="AfterTabstripBikes">
 			<header data-role="header">
 				<div data-role="navbar">
 					<a data-role="button" data-icon="add" data-align="left" data-rel="actionsheet" onclick="newBike()" id="lblAdd">a</a>
@@ -147,7 +149,8 @@
 			</header>
 			<ul data-role="listview" data-style="inset" id="lstBikes"></ul>
 			<script id="bikeEditTemplate" type="text/x-kendo-template">
-				<a id="btnListBikeEdit">${Description}</a>
+				<a id="btnDelete" class="btnFinalDelete" data-role="button" onclick="deleteBike()" style="Display: none; background-color: red">Delete</a>
+                ${Description}<a id="btnListBikeEdit" data-role="detailbutton" data-style="detaildisclose"></a>
 				<a id="btnListBikeDelete" class="btnEditDelBikeInList" data-role="detailbutton" data-style="rowdelete"></a>
 			</script>
 		</div>
@@ -193,7 +196,7 @@
 					<a href="#tabstrip-play" data-icon="play" id="lblRunStop">Run/Stop</a>
 					<a href="#tabstrip-map" data-icon="globe" id="theMap">Map</a>
 					<a href="#tabstrip-bikeslist" data-icon="contacts" id="lblBikes">Bikes</a>
-					<a href="#tabstrip-devtools" data-icon="organize" id="devtools">Dev.Tools</a>
+					<!-- <a href="#tabstrip-devtools" data-icon="organize" id="devtools">Dev.Tools</a> -->
 				</div>
 			</div>
 		</div>

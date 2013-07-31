@@ -13,6 +13,12 @@ function afterShowMapTab() {
 		geolocationApp = new geolocationApp();
     	geolocationApp.run();
 	}
+    if (model.timer == 0 && model.geolocationTime > 0) {
+        model.timer = window.setTimeout(function() {
+			refreshMap();
+		}, model.geolocationTime); // handle for timer that fires to refresh map;   
+    }
+    // Refresh now
     refreshMap();
 }
 
@@ -55,13 +61,14 @@ function RenderRiders() {
 		return;
 	
 	// Clean out old markers and lines
-	for (var i = 0; i < model.markersArray.length; i++) {
+    var i;
+	for (i = 0; i < model.markersArray.length; i++) {
 		model.markersArray[i].setMap(null);
 	}
-	for (var i = 0; i < model.polylineArray.length; i++) {
+	for ( i = 0; i < model.polylineArray.length; i++) {
 		model.polylineArray[i].setMap(null);
 	}
-	for (var i = 0; i < model.mechanicMarkersArray.length; i++) {
+	for ( i = 0; i < model.mechanicMarkersArray.length; i++) {
 		model.mechanicMarkersArray[i].setMap(null);
 	}
 	model.markersArray = [];
@@ -70,12 +77,12 @@ function RenderRiders() {
 	
 	// Lookup my biker IDs
 	var myBikeIds = [];
-	for (var l = 0; l < model.bikersArray.length; l++) {
-		myBikeIds[l] = model.bikersArray[l].RiderId;
+	for (i = 0; i < model.bikersArray.length; i++) {
+		myBikeIds[i] = model.bikersArray[i].RiderId;
 	}
 	
 	// Loop for all the riders, excluding myself
-	for (var i = 0; i < model.riderData.length; i++) {
+	for ( i = 0; i < model.riderData.length; i++) {
 		var bId = model.riderData[i].RiderId;
 		if (myBikeIds.indexOf(bId) == -1) {  // This is not me
 			// Determine if contact is known
@@ -224,7 +231,7 @@ function updateRWM() {
     if (model.currentPositionMarker == undefined)
     {
         // ? We should be running, so since we are not, try again in a few seconds
-        model.timerUpdateRWM = self.setTimeout( function() { UpdateRWM(); }, 4000);
+        model.timerUpdateRWM = self.setTimeout( function() { updateRWM(); }, 4000);
         return;
     }
     
@@ -234,7 +241,7 @@ function updateRWM() {
 	if (model.hasTrouble)
 		typestyle = -1;
 	var showAll = $("#cbOneOrAllTypes").val() == "on" ? "true" : "false";
-	var myUrl = urls.updateRWMUrl + "riderId=" + model.current.RiderId + "&lat=" + curPos.lat() + "&lon=" + curPos.lon() + "&heading=" + model.markerIcon.rotation + 
+	var myUrl = urls.updateRWMUrl + "riderId=" + model.current.RiderId + "&lat=" + curPos.lat() + "&lon=" + curPos.lng() + "&heading=" + model.markerIcon.rotation + 
 				"&type=" + typestyle + "&pelSize=10&showAll=" + showAll + "&ts=" + new Date().getTime();
 	if (!(navigator.connection.type == Connection.NONE)) {
 		$.ajax({
@@ -258,14 +265,16 @@ function updateRWM() {
     
     // Start another loop if we are running
     if (model.isStarted)
-        model.timerUpdateRWM = self.setTimeout( function() { UpdateRWM(); }, model.refreshTime);
+        model.timerUpdateRWM = self.setTimeout( function() { updateRWM(); }, model.refreshTime);
 }
 
 function refreshMap() {
-	if (model.timer) {
-		window.clearInterval(model.timer);
-		model.timer = 0;
-	}
+    if (firstRun && model.timer == 0) return; // Not showing map yet
+    
+    if (model.timer != 0) {
+        window.clearTimeout(model.timer);
+        model.timer = 0;
+    }
 	
 	var options = {
 		enableHighAccuracy: true,
@@ -280,10 +289,12 @@ function refreshMap() {
 		}, 
 		options)
 		
-	// Start an automatic refresh timer if we are running
-    model.timer = window.setInterval(function() {
-        refreshMap();
-    }, model.refreshBase);
+	// Start an automatic refresh timer if we are running in the foreground
+    if (model.geolocationTime > 0) {
+        model.timer = window.setTimeout(function() {
+            refreshMap();
+        }, model.geolocationTime);
+    }
 }
 
 function zoomToDefault() {

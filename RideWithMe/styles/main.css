@@ -1,12 +1,27 @@
-#geoLocationContainer,
-#helloWorldInput,
-#helloWorldText
+#geoLocationContainer
 {
     text-align: center;
 }
 
 .dataConnection{
     margin-bottom: 10px;
+}
+
+#lblDataConnection2{
+    position: absolute;
+    top: 70px;
+    left: 10px;
+    color: Red;
+}
+
+.lowBattery{
+    margin-bottom: 10px;
+    position: absolute;
+    top: 360px;
+    left: 10px;
+    color: Red;
+    font-size:larger;
+    display: none;
 }
 
 #startStop{
@@ -23,6 +38,10 @@
     margin-bottom: 70px;
 }
 
+#lblTrouble{
+    color: Red;
+}
+
 #imgStartStop{
     width: 120px;
 }
@@ -32,12 +51,6 @@
     font-size: 0.8em;
 }
 
-#lblDataConnection2{
-    position: absolute;
-    top: 70px;
-    left: 10px;
-    color: Red;
-}
 
 #imgZoom{
     position: absolute; top: 10px; left: 10px; width: 51px;
@@ -90,4 +103,9 @@
 
 .btnEditDelBikeInList{
     display: none;
+}
+
+#tabstrip-play .km-content
+{
+/*    background-color: White; */
 }
