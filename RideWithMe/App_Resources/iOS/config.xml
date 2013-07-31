@@ -5,7 +5,7 @@
     <preference name="AutoHideSplashScreen" value="true" />
     <preference name="BackupWebStorage" value="cloud" />
     <preference name="DisallowOverscroll" value="false" />
-    <preference name="EnableLocation" value="false" /><!-- DEPRECATED -->
+    <preference name="EnableLocation" value="true" /><!-- DEPRECATED -->
     <preference name="EnableViewportScale" value="false" />
     <preference name="FadeSplashScreen" value="true" />
     <preference name="FadeSplashScreenDuration" value=".25" />
@@ -32,7 +32,7 @@
         <plugin name="Contacts" value="CDVContacts" />
         <plugin name="Geolocation" value="CDVLocation" />
         <plugin name="Globalization" value="CDVGlobalization" />
-        <plugin name="File" value="CDVFile" />
+<!--        <plugin name="File" value="CDVFile" />
         <plugin name="Device" value="CDVDevice" />
         <plugin name="Accelerometer" value="CDVAccelerometer" />
         <plugin name="Camera" value="CDVCamera" />
@@ -42,7 +42,7 @@
         <plugin name="Media" value="CDVSound" />
         <plugin name="Capture" value="CDVCapture" />
         <plugin name="SplashScreen" value="CDVSplashScreen" />
-        <plugin name="InAppBrowser" value="CDVInAppBrowser" />
+        <plugin name="InAppBrowser" value="CDVInAppBrowser" /> -->
     </plugins>
 
     <access origin="http://127.0.0.1*" /> <!-- Allow local web pages -->>
