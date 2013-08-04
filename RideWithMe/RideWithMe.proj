@@ -7,7 +7,7 @@
     <ProjectName>RideWithMe</ProjectName>
     <IsRunnable>true</IsRunnable>
     <TemplateAppName>Cordova270</TemplateAppName>
-    <AndroidPermissions>android.permission.ACCESS_COARSE_LOCATION;android.permission.ACCESS_FINE_LOCATION;android.permission.ACCESS_LOCATION_EXTRA_COMMANDS;android.permission.READ_PHONE_STATE;android.permission.INTERNET;android.permission.READ_CONTACTS;android.permission.WRITE_CONTACTS;android.permission.ACCESS_NETWORK_STATE</AndroidPermissions>
+    <AndroidPermissions>android.permission.ACCESS_COARSE_LOCATION;android.permission.ACCESS_FINE_LOCATION;android.permission.ACCESS_LOCATION_EXTRA_COMMANDS;android.permission.INTERNET;android.permission.READ_CONTACTS;android.permission.WRITE_CONTACTS;android.permission.WRITE_EXTERNAL_STORAGE;android.permission.ACCESS_NETWORK_STATE</AndroidPermissions>
     <DeviceOrientations>Portrait</DeviceOrientations>
     <iOSStatusBarStyle>Default</iOSStatusBarStyle>
     <AndroidHardwareAcceleration>true</AndroidHardwareAcceleration>
@@ -73,6 +73,7 @@
     <Content Include="images\Arrow0.png" />
     <Content Include="images\Arrow1.png" />
     <Content Include="images\Arrow2.png" />
+    <Content Include="images\close.gif" />
     <Content Include="images\contactsml.png" />
     <Content Include="images\PanOff.png" />
     <Content Include="images\Path0.png" />

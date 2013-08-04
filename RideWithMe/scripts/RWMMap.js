@@ -323,6 +323,8 @@ geolocationApp.prototype = {
     
 	_onSuccess:function(position) {
 		// Successfully retrieved the geolocation information. Display it all.
+        if (!model.connected) return; // We are not connected, so we cannot run
+        
 		var curPos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 		if (model.map == undefined) {
 			model.map = new google.maps.Map(document.getElementById('map-canvas'), {
@@ -336,7 +338,33 @@ geolocationApp.prototype = {
 			});
 			google.maps.event.addListener(model.map, 'idle', BoundsChanged);
 		}
-		if (model.currentPositionMarker == undefined) {
+
+        if (model.infoBox == undefined) {
+        	model.infoBoxText = document.createElement("div");
+            model.infoBoxText.id = "infoBox";
+        	model.infoBoxText.style.cssText = "border: 1px solid black; margin-top: 8px; padding: 5px;";
+        	model.infoBoxText.innerHTML = "My Text";
+            model.infoBoxOptions = {
+        		content: model.infoBoxText
+        		,disableAutoPan: false
+        		,maxWidth: 0
+        		,pixelOffset: new google.maps.Size(-110, 0)
+        		,zIndex: null
+        		,boxStyle: { 
+        			opacity: 0.9
+        			,width: "220px"
+        		}
+        		,closeBoxMargin: "10px 2px 2px 2px"
+        		,closeBoxURL: "http://www.google.com/intl/en_us/mapfiles/close.gif"
+        		,infoBoxClearance: new google.maps.Size(2, 2)
+        		,isHidden: false
+        		,pane: "floatPane"
+        		,enableEventPropagation: false
+        	};
+            model.infoBox = new InfoBox(model.infoBoxOptions);
+        }
+        
+        if (model.currentPositionMarker == undefined) {
 			if (model.current) {
                 // Create my icon
                 
@@ -349,6 +377,8 @@ geolocationApp.prototype = {
 				});
 				var can = $("#map-canvas");
 				can.css("height", can[0].parentElement.clientHeight);
+               
+                
 				// click on my own arrow
 				google.maps.event.addListener(model.currentPositionMarker, 'click', function() {
 					var ctn = '<table>'

@@ -44,6 +44,8 @@ function onPause() {
         model.geolocationTime = 30000;    
     }
     
+    stopCompass();
+    
 }
 
 function onResume() {
@@ -63,7 +65,13 @@ function onResume() {
 		zoomToDefault();
         
         // Refresh the map to ensure our current location is known
+        startCompass();
 		refreshMap();
+        
+        if (model.isStarted)
+            location.href = "#tabstrip-map"; // Go to the map, as we are running
+        else
+            location.href = "#tabstrip-play"; // Go to the start page as we are stopped
 	}, 0);	
 }
 
@@ -71,12 +79,17 @@ function onResume() {
 function onConnectionOffline() {
 	// On the Map, show an overlay text box showing no connection
 	$('.dataConnection').show(2000);
+    $('#lblGetNew').hide();
+    model.connected = false;
 }
 
 function onConnectionOnline() {
 	// On the map, hide the overlay text box showing no connection
 	$('.dataConnection').hide();
+    $('#lblGetNew').show(100);
 
+    model.connected = true;
+    
 	// Setup the map with my location
 	refreshMap();
 }
@@ -86,8 +99,10 @@ function checkConnection() {
 	
 	if (networkState == Connection.NONE) {
 		onConnectionOffline();
+        return false;
 	}
 	else {
 		onConnectionOnline();
+        return true;
 	}
 }

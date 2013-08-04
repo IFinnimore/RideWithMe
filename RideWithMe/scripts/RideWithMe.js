@@ -35,6 +35,7 @@ function datacontainer() {
 	this.oneOrAllTypes;
     this.bikeSymbol;
     this.panOff; // Toggle for autopan
+    this.connected;
 }
 
 function model() {
@@ -52,28 +53,6 @@ $(document).ready(function() {
 	if (frequ != undefined)
 		$("#txtUpdateFrequency").val(frequ);
 	model = new datacontainer();
-	model.infoBoxText = document.createElement("div");
-    model.infoBoxText.id = "infoBox";
-	model.infoBoxText.style.cssText = "border: 1px solid black; margin-top: 8px; padding: 5px;";
-	model.infoBoxText.innerHTML = "My Text";
-    model.infoBoxOptions = {
-		content: model.infoBoxText
-		,disableAutoPan: false
-		,maxWidth: 0
-		,pixelOffset: new google.maps.Size(-110, 0)
-		,zIndex: null
-		,boxStyle: { 
-			opacity: 0.9
-			,width: "220px"
-		}
-		,closeBoxMargin: "10px 2px 2px 2px"
-		,closeBoxURL: "http://www.google.com/intl/en_us/mapfiles/close.gif"
-		,infoBoxClearance: new google.maps.Size(2, 2)
-		,isHidden: false
-		,pane: "floatPane"
-		,enableEventPropagation: false
-	};
-    model.infoBox = new InfoBox(model.infoBoxOptions);
 	model.markersArray = [];
 	model.polylineArray = [];
 	model.mechanicMarkersArray = [];
@@ -81,7 +60,7 @@ $(document).ready(function() {
 	model.isStarted = false; // true when running, false when not
 	model.hasTrouble = false;
 	model.bikeListEditMode = false;
-	model.refreshBase = 5000; // Basic refresh cycle is one per 5 seconds
+	model.refreshBase = 10000; // Basic refresh cycle is one per 5 seconds
 	model.refreshTime = model.refreshBase * 12; // time for updating other riders
     model.geolocationTime = model.refreshBase; // time for getting our position
     
@@ -122,12 +101,16 @@ $(document).ready(function() {
 			model.dictionary = new english();
 			break;
 	}
+    //applyDictionary();
 });
 
 function onDeviceReady() {
-	applyDictionary();
+    // setup dictionary and bikes
+    //alert("documentready event");
+    applyDictionary();
 	loadListOfBikes();
 	refreshKnownRiders();
+    
 	// When the battery gets critical, stop the ride no matter what
 	document.addEventListener("batterystatus", onBatteryStatus, false);
 	
@@ -136,15 +119,17 @@ function onDeviceReady() {
 	document.addEventListener("online", onConnectionOnline, false);
 
 	// Resume event handler.  Done as a setTimeout to avoid race condition
-	document.addEventListener("pause", onResume, false);
-    document.addEventListener("resume", onResume, false);
+	//document.addEventListener("pause", onPause, false);
+    //document.addEventListener("resume", onResume, false);
     
     // Handle the back button on the Android
     document.addEventListener("backbutton", onBackKeyDown, false);
 
+	// Verify server connectivity.
 
-	// ToDo:  Verify server connectivity.
-	checkConnection();	
+	checkConnection();
+
+    // setup the switch    
 	var switchData = $("#cbOneOrAllTypes").data("kendoMobileSwitch");
 	if (switchData)
 		switchData.bind("change", function(e) {
@@ -153,17 +138,19 @@ function onDeviceReady() {
     
     // Start the compass
     startCompass();
+
 }
 
 function startRide() {
+    
     // Close the infobox, if open
-    model.infoBox.close();
-
+    if (model.infoBox )
+        model.infoBox.close();
     
 	if (!model.isStarted) {
         // We are not started, so start
         model.isStarted = true;
-        
+
 		if ((navigator.connection.type == Connection.NONE)) {
 			// No connection. so immediately stop by recursive call;
 			startRide();

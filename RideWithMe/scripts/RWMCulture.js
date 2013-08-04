@@ -72,6 +72,7 @@ function deutsch(){
 
 function applyDictionary(){
     var md = model.dictionary;
+    if (md == undefined) return;
     $("#lblShowAllRiders").html(md.showAllRiders);
     $("#lblOnlyMyType").html(md.onlyMyType);
     $("#showAllRiders .km-switch-label-off").html(md.all);
