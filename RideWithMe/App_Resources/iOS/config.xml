@@ -22,7 +22,7 @@
     <preference name="UIWebViewBounce" value="true" />
     -->
 
-    <content src="main.html" />
+    <content src="index.html" />
 
     <plugins>
         <plugin name="Logger" value="CDVLogger" />
@@ -32,9 +32,9 @@
         <plugin name="Contacts" value="CDVContacts" />
         <plugin name="Geolocation" value="CDVLocation" />
         <plugin name="Globalization" value="CDVGlobalization" />
-<!--        <plugin name="File" value="CDVFile" />
+        <plugin name="File" value="CDVFile" />
         <plugin name="Device" value="CDVDevice" />
-        <plugin name="Accelerometer" value="CDVAccelerometer" />
+<!--        <plugin name="Accelerometer" value="CDVAccelerometer" />
         <plugin name="Camera" value="CDVCamera" />
         <plugin name="Echo" value="CDVEcho" />
         <plugin name="FileTransfer" value="CDVFileTransfer" />
@@ -46,8 +46,8 @@
     </plugins>
 
     <access origin="http://127.0.0.1*" /> <!-- Allow local web pages -->>
-    <access origin="maps.google.com" />
-    <access origin="maps.gstatic.com" />
-    <access origin="maps.googleapis.com" />
+    <access origin="*.google.com" />
+    <access origin="*.gstatic.com" />
+    <access origin="*.googleapis.com" />
     <access origin="*.ridewithme.co" />
 </widget>

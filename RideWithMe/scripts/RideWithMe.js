@@ -41,9 +41,7 @@ function datacontainer() {
 function model() {
 }
 
-document.addEventListener("deviceready", onDeviceReady, false);
 
-var alertCnt = 0;
 $(document).ready(function() {
 	urls = {
 		getRiderIdUrl: "http://ridewithme.co/services/RideWithMe/RideWithMeService.svc/GetNewRiderId",
@@ -104,6 +102,8 @@ $(document).ready(function() {
     //applyDictionary();
 });
 
+document.addEventListener("deviceready", onDeviceReady, false);
+
 function onDeviceReady() {
     // setup dictionary and bikes
     //alert("documentready event");
@@ -119,14 +119,13 @@ function onDeviceReady() {
 	document.addEventListener("online", onConnectionOnline, false);
 
 	// Resume event handler.  Done as a setTimeout to avoid race condition
-	//document.addEventListener("pause", onPause, false);
-    //document.addEventListener("resume", onResume, false);
+	document.addEventListener("pause", onPause, false);
+    document.addEventListener("resume", onResume, false);
     
     // Handle the back button on the Android
     document.addEventListener("backbutton", onBackKeyDown, false);
 
 	// Verify server connectivity.
-
 	checkConnection();
 
     // setup the switch    

@@ -1,4 +1,3 @@
-
 function geolocationApp() {
 }
 
@@ -145,8 +144,8 @@ function RenderRiders() {
 
 				var ne = model.bounds.getNorthEast();
 				var sw = model.bounds.getSouthWest();
-				var insetVert = (ne.lat() - sw.lat()) / 80;  // Used to position arrows inside the top/bottom edge
-				var insetHorz = (ne.lng() - sw.lng()) / 80;  // Used to position arrows inside the left/right edge
+				var insetVert = (ne.lat() - sw.lat()) / 40;  // Used to position arrows inside the top/bottom edge
+				var insetHorz = (ne.lng() - sw.lng()) / 40;  // Used to position arrows inside the left/right edge
 				var OffScreenLoc;
 				
 				// Calculate some needed values
@@ -211,6 +210,7 @@ function RenderRiders() {
 					ctn += '<a href="#tabstrip-contactlist" onclick="showContacts(' + this.rider.RiderId + 
 						   ')">' + model.dictionary.createAddToContact + '</a>';
 				}
+                ctn += '<div><a href=".." onclick="panThem(' + pos.lat() +', ' + pos.lng() + ')">Go To Rider</a></div>';
 				ctn += '</div></font>';
 				model.infoBoxText.innerHTML = ctn;
 				model.infoBox.open(model.map, this);  
@@ -309,6 +309,11 @@ function zoomToDefault() {
     }
 }
 
+function panThem(lat, lng) {
+    var pos = new google.maps.LatLng(lat, lng);    
+    model.map.panTo(pos);
+}
+
 geolocationApp.prototype = {
     
 	run:function() {
@@ -355,7 +360,7 @@ geolocationApp.prototype = {
         			,width: "220px"
         		}
         		,closeBoxMargin: "10px 2px 2px 2px"
-        		,closeBoxURL: "http://www.google.com/intl/en_us/mapfiles/close.gif"
+        		,closeBoxURL: "images/close.gif"
         		,infoBoxClearance: new google.maps.Size(2, 2)
         		,isHidden: false
         		,pane: "floatPane"

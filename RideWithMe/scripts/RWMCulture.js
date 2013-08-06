@@ -20,7 +20,7 @@ function english(){
     this.competition = "Competition";
     this.recreation = "Recreation";
     this.leisure = "Leisure";
-    this.createAddToContact = "Create/Add to contact";
+    this.createAddToContact = "Add to contact";
     this.waitingForGeolocationInformation = "Waiting for geolocation information";
     this.saveIDToContact = 'Save ID #{0} to "{1}"?';
     this.riderIDSaved = 'Rider ID saved to "{0}".';
@@ -56,7 +56,7 @@ function deutsch(){
     this.competition = "Wettbewerb";
     this.recreation = "Erholung";
     this.leisure = "Freizeit";
-    this.createAddToContact = "Zu Kontakten hinzufügen/erstellen";
+    this.createAddToContact = "Zu Kontakten hinzufügen";
     this.waitingForGeolocationInformation = "Warte auf GPS-Daten";
     this.saveIDToContact = 'ID #{0} zu "{1}" speichern?';
     this.riderIDSaved = 'ID zu "{0}" gespeichert.';
