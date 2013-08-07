@@ -70,6 +70,8 @@ function RenderRiders() {
 	model.polylineArray = [];
 	model.mechanicMarkersArray = [];
 	
+    if (!model.isStarted) return;
+    
 	// Lookup my biker IDs
 	var myBikeIds = [];
 	for (i = 0; i < model.bikersArray.length; i++) {
@@ -451,8 +453,7 @@ geolocationApp.prototype = {
 	},
     
 	_onError:function(error) {
-		// ToDo:  better than this!
-		$("#status").html('Fehla');
+        alert(model.dictionary.cannotGetLocation);
 	},
     
 	_setResults:function(value) {

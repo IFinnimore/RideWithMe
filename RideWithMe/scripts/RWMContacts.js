@@ -12,10 +12,13 @@ function showContacts(cRiderId) {
 	options.multiple = true;
 	var fields = ["name", "displayName", "phoneNumbers", "id"];
 	// real world
+    /*
 	navigator.contacts.find(fields, onContactSuccess, onContactError, options);
-	return;
+    //*/
+    
 	// dev
-	/*var contacts = []
+	///*
+    var contacts = []
 	contacts[0] = {id: "123", displayName: "Melanie Jaros", name: {formatted: "Melanie Jaros"}, phoneNumbers: null};
 	contacts[1] = {id: "223", displayName: "Gerhard Jaros", name: {formatted: "Gerhard Jaros"}, phoneNumbers: null};
 	contacts[2] = {id: "323", displayName: "Mario Fernsebner", name: {formatted: "Mario Fernsebner"}, phoneNumbers: null};
@@ -23,7 +26,8 @@ function showContacts(cRiderId) {
 	contacts[4] = {id: "523", displayName: "Georg Segl", name: {formatted: "Georg Segl"}, phoneNumbers: null};
 	contacts[5] = {id: "623", displayName: "Roman Innerhofer", name: {formatted: "Roman Innerhofer"}, phoneNumbers: null};
 	contacts[6] = {id: "723", displayName: "Ian Finnimore", name: {formatted: "Ian Finnimore"}, phoneNumbers: null};
-	onContactSuccess(contacts);*/
+	onContactSuccess(contacts);
+    //*/
 }
 
 var currentContactId;

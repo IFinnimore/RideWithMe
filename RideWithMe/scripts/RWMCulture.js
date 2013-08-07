@@ -32,6 +32,7 @@ function english(){
 	this.dataConnection="NO DATA CONNECTION";
     this.lowPower="BATTERY TOO LOW";
     this.trouble="Trouble";
+    this.cannotGetLocation="Cannot get location.  Please check permissions";
 }
 
 function deutsch(){
@@ -68,6 +69,7 @@ function deutsch(){
 	this.dataConnection="Keine Datenverbindung";
     this.lowPower="Batterie zu niedrig";
     this.trouble="Probleme";
+    this.cannotGetLocation="Kann nicht gelegen. Bitte überprüfen Sie die Berechtigungen"
 }
 
 function applyDictionary(){

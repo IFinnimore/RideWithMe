@@ -188,8 +188,8 @@ function startRide() {
             zoomToDefault();
         }
         
-        // Start the UpdateRWM timer by updating RWM in 4 seconds (allows time for initial GPS location)
-        model.timerUpdateRWM = self.setTimeout( function() { updateRWM(); }, 4000);
+        // Start the UpdateRWM timer by updating RWM in 2 seconds (allows time for initial GPS location)
+        model.timerUpdateRWM = self.setTimeout( function() { updateRWM(); }, 2000);
 
         // setup the start/stop overlay for stop    
         $("#imgStartStop").attr("src", "images/Stop.png");
