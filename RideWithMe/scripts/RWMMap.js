@@ -8,9 +8,13 @@ function calcAngle(x1, y1, x2, y2) {
 }
 
 function afterShowMapTab() {
-	if (model.map == undefined) {
-		geolocationApp = new geolocationApp();
-    	geolocationApp.run();
+	if (!model.geolocationAppRunning) {
+        if (model.connected) { // We are not connected, so we cannot run
+            model.geolocationAppRunning = true;
+    		geolocationApp = new geolocationApp();
+        	geolocationApp.run();
+        }
+        else return;
 	}
     if (model.timer == 0 && model.geolocationTime > 0) {
         model.timer = window.setTimeout(function() {
@@ -34,17 +38,9 @@ var firstRun = true;
 function BoundsChanged() {
 	if (firstRun) {
 		// this is to prevent iOS trouble with the link
-		firstRun = false;
-		var googleBlock = document.getElementsByClassName("gmnoprint");
-
-		for (var i = 0; i < googleBlock.length ; i++) {
-			var block = googleBlock[i];
-			var aLnk = block.getElementsByTagName("a");
-			for (var j = 0; j < aLnk.length; j++) {
-				aLnk[j].removeAttribute("href");
-			}
-		}
-	}
+		firstRun = false; }
+        
+    $("#map-canvas a").removeAttr("href");
 
 	// save the bounds for future use
 	model.bounds = model.map.getBounds();
@@ -269,6 +265,8 @@ function updateRWM() {
 }
 
 function refreshMap() {
+    if (!model.geolocationAppRunning) return;  // We are not running yet!
+    
     if (firstRun && model.timer == 0) return; // Not showing map yet
     
     if (model.timer != 0) {
@@ -329,6 +327,7 @@ geolocationApp.prototype = {
 	_onSuccess:function(position) {
 		// Successfully retrieved the geolocation information. Display it all.
         if (!model.connected) return; // We are not connected, so we cannot run
+
         
 		var curPos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 		if (model.map == undefined) {

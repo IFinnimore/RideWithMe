@@ -68,10 +68,7 @@ function onResume() {
         startCompass();
 		refreshMap();
         
-        if (model.isStarted)
-            location.href = "#tabstrip-map"; // Go to the map, as we are running
-        else
-            location.href = "#tabstrip-play"; // Go to the start page as we are stopped
+        location.href = "#tabstrip-map"; // Go to the map, as we are running
 	}, 0);	
 }
 

@@ -2,6 +2,7 @@ var urls;
 
 function datacontainer() {
 	this.map;
+    this.geolocationAppRunning;
 	this.currentPositionMarker;
 	this.current;
 	this.geoLoc;
@@ -47,10 +48,9 @@ $(document).ready(function() {
 		getRiderIdUrl: "http://ridewithme.co/services/RideWithMe/RideWithMeService.svc/GetNewRiderId",
 		updateRWMUrl: "http://ridewithme.co/services/RideWithMe/RideWithMeService.svc/UpdateRwm/?",
 	}
-	var frequ = localStorage.getItem("locFrequency");
-	if (frequ != undefined)
-		$("#txtUpdateFrequency").val(frequ);
+
 	model = new datacontainer();
+    model.geolocationAppRunning = false;
 	model.markersArray = [];
 	model.polylineArray = [];
 	model.mechanicMarkersArray = [];
@@ -58,8 +58,8 @@ $(document).ready(function() {
 	model.isStarted = false; // true when running, false when not
 	model.hasTrouble = false;
 	model.bikeListEditMode = false;
-	model.refreshBase = 10000; // Basic refresh cycle is one per 5 seconds
-	model.refreshTime = model.refreshBase * 12; // time for updating other riders
+	model.refreshBase = 10000; // Basic refresh cycle is one per 10 seconds
+	model.refreshTime = model.refreshBase * 6; // time for updating other riders
     model.geolocationTime = model.refreshBase; // time for getting our position
     
     // SVG paths for the symbols about the bike
@@ -99,7 +99,8 @@ $(document).ready(function() {
 			model.dictionary = new english();
 			break;
 	}
-    //applyDictionary();
+    
+    startMap();
 });
 
 document.addEventListener("deviceready", onDeviceReady, false);
@@ -137,7 +138,14 @@ function onDeviceReady() {
     
     // Start the compass
     startCompass();
+    
+    // Setup the map
+    startMap();
+}
 
+function startMap() {
+    window.setTimeout( function() {
+    afterShowMapTab(); }, 10);
 }
 
 function startRide() {
@@ -171,8 +179,7 @@ function startRide() {
 				location.href = "#tabstrip-choosebike";
 				break;
 		}
-		$("#imgStartStop").attr("src", "images/Stop.png");
-        $("#lblRunStop").html(model.dictionary.stopTxt);
+        $("#startStopOverlay").hide(300);
         // Paint the current map
         refreshMap();
         
@@ -183,7 +190,12 @@ function startRide() {
         
         // Start the UpdateRWM timer by updating RWM in 4 seconds (allows time for initial GPS location)
         model.timerUpdateRWM = self.setTimeout( function() { updateRWM(); }, 4000);
-	}
+
+        // setup the start/stop overlay for stop    
+        $("#imgStartStop").attr("src", "images/Stop.png");
+        $("#lblRunStop").html(model.dictionary.stopTxt);
+
+    }
 	else {
 		stopRide();
 	}
@@ -212,7 +224,7 @@ function stopRide() {
     }
     
     // Go to the Start/Stop screen (may already be there)
-    location.href = "#tabstrip-play";
+    location.href = "#tabstrip-map";
     
     // Clear out the old data.  If we dont share, we don't see others.
     model.riderData = []; // Data back from RWM web sercie
@@ -239,6 +251,8 @@ function stopRide() {
         Type: 0,
         RiderId: undefined
     };
+    
+    $("#startStopOverlay").show(1000);
     
     // Redraw us
     refreshMap();

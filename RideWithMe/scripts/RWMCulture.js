@@ -4,8 +4,8 @@ function english(){
     this.stopTxt = "Stop";
     this.map = "Map";
     this.bikes = "Bikes";
-    this.showAllRiders = "Show all riders";
-    this.onlyMyType = "Only my type";
+    this.showAllRiders = "all riders";
+    this.onlyMyType = "Show only my type";
     this.all = "All";
     this.type = "Type";
     this.cancel = "Cancel";

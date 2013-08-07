@@ -23,44 +23,50 @@
 		<script src="scripts/RideWithMe.js"></script>
 	</head>
 	<body>
-		<div data-role="view" id="tabstrip-play" data-title="Ride With Me">
-			<div id="startStop">
+<!--		<div data-role="view" id="tabstrip-play" data-title="Ride With Me">
+ 			<div id="startStop">
 				<div class="dataConnection">NO DATA CONNECTION</div>
                 <div class="lowBattery">LOW BATTERY</div>
 				<div>
 					<img src="images/Start.png" onclick="startRide()" id="imgStartStop"/>
 				</div>
 				<div id="lblRunStop" onclick="startRide()">stst</div>
-			</div>
-			<p id="showAllRiders">
-				<span> <span id="lblShowAllRiders"></span>
-					<input data-role="switch" id="cbOneOrAllTypes"/> <span id="lblOnlyMyType"></span> </span>
-			</p>
-			<div id="wrench">
+
+    			<p id="showAllRiders">
+    				<span> <span id="lblShowAllRiders"></span>
+    					<input data-role="switch" id="cbOneOrAllTypes"/> <span id="lblOnlyMyType"></span> </span>
+    			</p>
+    		</div>
+            <div id="wrench">
                 <div>
     				<img src="images/WrenchButtonNeutral.png" style="width: 120px;" onclick="startStopTrouble()" class="mechanic"/>
                 </div>
-                <div id="lblTrouble" onclick="startStopTrouble()">stst</div>
+                <div id="lblTrouble" onclick="startStopTrouble()">stst</div> 
 			</div>
-		</div>
+		</div>  -->
 
-		<div data-role="view" id="tabstrip-choosebike">
-			<header data-role="header">
-				<div data-role="navbar">
-					<span data-role="view-title" id="lblChooseBikeTitle">Choose Bike Title</span>
-				</div>
-			</header>
-			<ul data-role="listview" data-style="inset" id="selBikes" data-layout="databinding"></ul>
-			<script id="choosebikeTemplate" type="text/x-kendo-template">
-				<div>${Description}</div>
-			</script>
-		</div>
+
 
 		<div data-role="view" id="tabstrip-map" data-title="Map" data-stretch="true" data-show="afterShowMapTab">
-			<div id="map-canvas"></div>
+			<div id="map-canvas" style="height:100%; width:100%"></div>
 			<img src="images/Zoom.png" onclick="zoomToDefault()" id="imgZoom"/>
 			<div class="dataConnection" id="lblDataConnection2">NO DATA CONNECTION</div>
             <div class="lowBattery">LOW BATTERY</div>
+            <div id="startStopOverlay" class="shadow">
+				<div class="dataConnection">NO DATA CONNECTION</div>
+                <div class="lowBattery">LOW BATTERY</div>
+				<div id="btnStart">
+					<img src="images/Start.png" onclick="startRide()" id="imgStartStop"/>
+				</div>
+				<div id="lblRunStop" onclick="startRide()">stst</div>
+
+    			<p id="showAllRiders">
+    				<span> <!-- <span id="lblShowAllRiders">All</span> -->
+                        <span id="lblOnlyMyType">My Type</span>
+    				    <input data-role="switch" id="cbOneOrAllTypes"/>
+                    </span>
+    			</p>
+    		</div>
 		</div>
 
 		<div data-role="view" id="tabstrip-bikes" data-show="applyDictionary">
@@ -140,6 +146,18 @@
 			<input type="hidden" id="txtBikeId" />
 		</div>
 
+        <div data-role="view" id="tabstrip-choosebike">
+			<header data-role="header">
+				<div data-role="navbar">
+					<span data-role="view-title" id="lblChooseBikeTitle">Choose Bike Title</span>
+				</div>
+			</header>
+			<ul data-role="listview" data-style="inset" id="selBikes" data-layout="databinding"></ul>
+			<script id="choosebikeTemplate" type="text/x-kendo-template">
+				<div>${Description}</div>
+			</script>
+		</div>
+        
 		<div data-role="view" id="tabstrip-bikeslist" data-show="AfterTabstripBikes">
 			<header data-role="header">
 				<div data-role="navbar">
@@ -194,7 +212,7 @@
 			<div data-role="footer">
 				<div data-role="tabstrip">
 					<!-- leave the innerHTML as is - if removed, multilanguage is not supported -->
-					<a href="#tabstrip-play" data-icon="play" id="lblRunStop">Run/Stop</a>
+					<!-- <a href="#tabstrip-play" data-icon="play" id="lblRunStop">Run/Stop</a> -->
 					<a href="#tabstrip-map" data-icon="globe" id="theMap">Map</a>
 					<a href="#tabstrip-bikeslist" data-icon="contacts" id="lblBikes">Bikes</a>
 					<!-- <a href="#tabstrip-devtools" data-icon="organize" id="devtools">Dev.Tools</a> -->
