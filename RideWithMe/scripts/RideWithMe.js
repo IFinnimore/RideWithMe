@@ -83,7 +83,7 @@ $(document).ready(function() {
 	model.timer = 0; // handle for timer that updates position;
     model.timerUpdateRWM = 0; // Handle for timer that fires to update ridewithme
     
-	model.culture = navigator.language.substr(0, 2);
+
 	model.addFirstBike = false;
     model.bikersArray = [];
 	var oneOrAll = localStorage.getItem("oneOrAllTypes");
@@ -91,14 +91,8 @@ $(document).ready(function() {
 	if (oneOrAll == "true") {
 		$("#cbOneOrAllTypes").prop("checked", true);
 	}
-	switch (model.culture) {
-		case "de":
-			model.dictionary = new deutsch();
-			break;
-		default:
-			model.dictionary = new english();
-			break;
-	}
+    
+    setupLanguage(); // RMWCulture.js
     
     startMap();
 });
@@ -149,11 +143,7 @@ function startMap() {
 }
 
 function startRide() {
-    
-    // Close the infobox, if open
-    if (model.infoBox )
-        model.infoBox.close();
-    
+
 	if (!model.isStarted) {
         // We are not started, so start
         model.isStarted = true;
@@ -163,6 +153,10 @@ function startRide() {
 			startRide();
 			return;
 		}
+        
+        // Hide the overlay
+        overlayStartStop(false);
+        
 		switch (model.bikersArray.length) {
 			case 0:
 				model.addFirstBike = true;
@@ -179,7 +173,7 @@ function startRide() {
 				location.href = "#tabstrip-choosebike";
 				break;
 		}
-        $("#startStopOverlay").hide(300);
+
         // Paint the current map
         refreshMap();
         
@@ -190,11 +184,9 @@ function startRide() {
         
         // Start the UpdateRWM timer by updating RWM in 2 seconds (allows time for initial GPS location)
         model.timerUpdateRWM = self.setTimeout( function() { updateRWM(); }, 2000);
-
-        // setup the start/stop overlay for stop    
-        $("#imgStartStop").attr("src", "images/Stop.png");
-        $("#lblRunStop").html(model.dictionary.stopTxt);
-
+        
+        // Show we are running
+        displayRunState(true);
     }
 	else {
 		stopRide();
@@ -205,22 +197,19 @@ function stopRide() {
 	if (!model.isStarted)
 		return; // Not running, don't stop.
 
-    // Clear trouble
-    if (model.hasTrouble) {
-        startStopTrouble();
-    }
-    
     // we are stopped
     model.isStarted = false;
-
-    // Set the start icon
-    $("#imgStartStop").attr("src", "images/Start.png");
-    $("#lblRunStop").html(model.dictionary.runTxt);
+   
     
     // Stop the update timer
     if (model.timerUpdateRWM != 0) {
         self.clearInterval(model.timerUpdateRWM);
         model.timerUpdateRWM = 0;
+    }
+    
+    // Clear trouble
+    if (model.hasTrouble) {
+        startStopTrouble();
     }
     
     // Go to the Start/Stop screen (may already be there)
@@ -252,11 +241,49 @@ function stopRide() {
         RiderId: undefined
     };
     
-    $("#startStopOverlay").show(1000);
+    // Clear the info box and show the overlay
+    overlayStartStop(true);
+    
+    displayRunState(false);
+
     
     // Redraw us
     refreshMap();
     
     // Clear everyone else out
     RenderRiders();
+}
+
+function displayRunState(Running) {
+    if (Running) {
+        $("#stopLightGO").show();     
+        // setup the start/stop overlay for stop    
+        $("#imgStartStop").attr("src", "images/Stop.png");
+        $("#lblRunStop").html(model.dictionary.stopTxt);
+        $("#stopLightStop").hide();
+    } else {
+        $("#stopLightStop").show();
+        // Set the start icon
+        $("#imgStartStop").attr("src", "images/Start.png");
+        $("#lblRunStop").html(model.dictionary.runTxt);
+        $("#stopLightGO").hide();
+    }
+}
+
+var isOverlayShow = true;
+function overlayStartStop(ShowIt) {
+    HideInfoWindow();
+    if (ShowIt == undefined) ShowIt = !isOverlayShow;
+    
+    if (ShowIt) {
+        // Clear any info box if visible
+//        $("#startStopOverlay").show(1000);
+        $("#startStopOverlay").animate({left: "-120px"}, 500);
+        isOverlayShow = true;
+    } else {
+//        $("#startStopOverlay").hide(300);
+        $("#startStopOverlay").animate({left: "-300px", }, 500);
+        isOverlayShow = false;
+    }
+
 }

@@ -1,7 +1,7 @@
 function startStopTrouble(){
     
     // Close the infobox if open
-    model.infoBox.close();
+    overlayStartStop(false);
     
     // Toggle trouble
     model.hasTrouble = !model.hasTrouble;

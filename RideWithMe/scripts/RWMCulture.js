@@ -1,3 +1,15 @@
+function setupLanguage() {
+    model.culture = navigator.language.substr(0, 2);
+    switch (model.culture) {
+		case "de":
+			model.dictionary = new deutsch();
+			break;
+		default:
+			model.dictionary = new english();
+			break;
+	}
+}
+
 function english(){
     this.runStop = "Start/Stop";
     this.runTxt = "Start";
@@ -20,7 +32,7 @@ function english(){
     this.competition = "Competition";
     this.recreation = "Recreation";
     this.leisure = "Leisure";
-    this.createAddToContact = "Add to contact";
+    this.createAddToContact = "Connect to contact";
     this.waitingForGeolocationInformation = "Waiting for geolocation information";
     this.saveIDToContact = 'Save ID #{0} to "{1}"?';
     this.riderIDSaved = 'Rider ID saved to "{0}".';
@@ -57,7 +69,7 @@ function deutsch(){
     this.competition = "Wettbewerb";
     this.recreation = "Erholung";
     this.leisure = "Freizeit";
-    this.createAddToContact = "Zu Kontakten hinzufügen";
+    this.createAddToContact = "Zu Kontakt verbinden";
     this.waitingForGeolocationInformation = "Warte auf GPS-Daten";
     this.saveIDToContact = 'ID #{0} zu "{1}" speichern?';
     this.riderIDSaved = 'ID zu "{0}" gespeichert.';

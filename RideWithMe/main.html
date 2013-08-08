@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title></title>
+		<title>RideWithMe</title>
 		<meta charset="utf-8" />
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
         <link href="kendo/styles/kendo.mobile.all.min.css" rel="stylesheet" />
@@ -10,7 +10,6 @@
 		<script src="kendo/js/jquery.min.js"></script>
 		<script src="kendo/js/kendo.mobile.min.js"></script>
         <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
-        <script src="scripts/infobox.js"></script>
 		<script src="scripts/Helpers.js"></script>
 		<script src="scripts/RWMCulture.js"></script>
 		<script src="scripts/RWMMechanic.js"></script>
@@ -66,7 +65,13 @@
     				    <input data-role="switch" id="cbOneOrAllTypes"/>
                     </span>
     			</p>
-    		</div>
+                <div id="pullout">
+                    <img src="images/pull.png" onclick="overlayStartStop()" />
+                </div>
+                <img id="stopLightStop" class="stopLight" src="images/stoplightStop.png" />
+                <img id="stopLightGO" style="display: none" class="stopLight" src="images/stoplightGO.png" />
+            </div>
+
 		</div>
 
 		<div data-role="view" id="tabstrip-bikes" data-show="applyDictionary">

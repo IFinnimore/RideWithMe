@@ -40,13 +40,14 @@ function BoundsChanged() {
 		// this is to prevent iOS trouble with the link
 		firstRun = false; }
         
-    $("#map-canvas a").removeAttr("href");
+    $("#map-canvas").find('a').removeAttr("href");
 
 	// save the bounds for future use
 	model.bounds = model.map.getBounds();
 
 	// Display the riders
-	RenderRiders();
+    if (!model.infoBox)
+	    RenderRiders();
 }
 
 // Draw riders on map
@@ -112,7 +113,8 @@ function RenderRiders() {
 					map: model.map,
 					position: pos,
 					icon: mIcon,
-					rider: model.riderData[i]
+					rider: model.riderData[i],
+                    riderPos: pos
 				});
 				
 				var styleOnly = model.riderData[i].Type > -1 ? model.riderData[i].Type.toString().substring(0, 1) : "-1";
@@ -142,7 +144,7 @@ function RenderRiders() {
 
 				var ne = model.bounds.getNorthEast();
 				var sw = model.bounds.getSouthWest();
-				var insetVert = (ne.lat() - sw.lat()) / 40;  // Used to position arrows inside the top/bottom edge
+				var insetVert = (ne.lat() - sw.lat()) / 20;  // Used to position arrows inside the top/bottom edge
 				var insetHorz = (ne.lng() - sw.lng()) / 40;  // Used to position arrows inside the left/right edge
 				var OffScreenLoc;
 				
@@ -186,35 +188,55 @@ function RenderRiders() {
 						strokeColor: strokeColor,
 						strokeWeight: 2
 					},
-					rider: model.riderData[i]
+					rider: model.riderData[i],
+                    riderPos: pos
 				});
 			}
 			
 			// Handle the clicking of the marker.  this works for both on-screen and offscreen riders
 			google.maps.event.addListener(model.markersArray[i], 'click', function() {
+                
 				var ctn = '<div style="margin: 3px;">' + model.dictionary.type + ": " + getRiderType(this.rider.Type) + '</div>' + 
 						  '<div style="margin: 3px;">' + model.dictionary.style + ": " + getRiderStyle(this.rider.Type) + '</div>';
 
 				if (ikr) {  // RWMContacts.js
 					// If the rider is known, add tokens for photo and name
-					getKnownRiderInfo(this.rider.RiderId);
 					ctn += '<div style="margin: 3px">##RiderPhoto##</div>';
 					ctn += '<div style="margin: 3px">##RiderName##</div>';
+                    getKnownRiderInfo(this.rider.RiderId, ctn);
 				} 
 				ctn += '<div style="margin: 3px; text-align: center;">' +
 					   '<button style="display: none;">' + model.dictionary.view + '</button>';
 				if (!ikr) {
 					// if rider is not known, add link to add this rider to a contact.
-					ctn += '<a href="#tabstrip-contactlist" onclick="showContacts(' + this.rider.RiderId + 
-						   ')">' + model.dictionary.createAddToContact + '</a>';
+					ctn += '<input type="button" onclick="showContacts(' + this.rider.RiderId + 
+						   ')" value="' + model.dictionary.createAddToContact + '" />';
 				}
-                ctn += '<div><a href=".." onclick="panThem(' + pos.lat() +', ' + pos.lng() + ')">Go To Rider</a></div>';
-				ctn += '</div></font>';
-				model.infoBoxText.innerHTML = ctn;
-				model.infoBox.open(model.map, this);  
+                ctn += '<input type="button" style="align: right;" onclick="panThem(' + this.riderPos.lat() +', ' + this.riderPos.lng() + ')" value="Go To Rider" />';
+                
+                ShowInfoWindow(this, ctn);
+
 			});
 		}
 	}
+}
+
+function ShowInfoWindow(anchor, ctn) {
+    if (model.infoBox) { model.infoBox.close(); model.infoBox = undefined; }
+    
+    var fullContent = '<div id="infoBox">' + ctn + '</div>';
+    
+    model.infoBox = new google.maps.InfoWindow({content: fullContent});
+	model.infoBox.open(model.map, anchor);
+    google.maps.event.addListener(model.infoBox, 'closeclick', HideInfoWindow );
+}
+
+function HideInfoWindow() {
+    if (model.infoBox) {
+        model.infoBox.close();
+        model.infoBox = undefined; 
+        RenderRiders();
+    }
 }
 
 function updateRWM() {
@@ -276,18 +298,15 @@ function refreshMap() {
         model.timer = 0;
     }
 	
-	var options = {
-		enableHighAccuracy: true,
-		maximumAge: 0 
-	};
 	navigator.geolocation.getCurrentPosition(
 		function() {
 			geolocationApp._onSuccess.apply(geolocationApp, arguments);
 		},
-		function() {
-			geolocationApp._onError();
+		function(error) {
+			geolocationApp._onError(error);
 		}, 
-		options)
+		{ enableHighAccuracy: true }
+        )
 		
 	// Start an automatic refresh timer if we are running in the foreground
     if (model.geolocationTime > 0) {
@@ -310,7 +329,8 @@ function zoomToDefault() {
 }
 
 function panThem(lat, lng) {
-    var pos = new google.maps.LatLng(lat, lng);    
+    var pos = new google.maps.LatLng(lat, lng);
+    HideInfoWindow();
     model.map.panTo(pos);
 }
 
@@ -330,7 +350,6 @@ geolocationApp.prototype = {
 		// Successfully retrieved the geolocation information. Display it all.
         if (!model.connected) return; // We are not connected, so we cannot run
 
-        
 		var curPos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 		if (model.map == undefined) {
 			model.map = new google.maps.Map(document.getElementById('map-canvas'), {
@@ -344,65 +363,36 @@ geolocationApp.prototype = {
 			});
 			google.maps.event.addListener(model.map, 'idle', BoundsChanged);
 		}
-
-        if (model.infoBox == undefined) {
-        	model.infoBoxText = document.createElement("div");
-            model.infoBoxText.id = "infoBox";
-        	model.infoBoxText.style.cssText = "border: 1px solid black; margin-top: 8px; padding: 5px;";
-        	model.infoBoxText.innerHTML = "My Text";
-            model.infoBoxOptions = {
-        		content: model.infoBoxText
-        		,disableAutoPan: false
-        		,maxWidth: 0
-        		,pixelOffset: new google.maps.Size(-110, 0)
-        		,zIndex: null
-        		,boxStyle: { 
-        			opacity: 0.9
-        			,width: "220px"
-        		}
-        		,closeBoxMargin: "10px 2px 2px 2px"
-        		,closeBoxURL: "images/close.gif"
-        		,infoBoxClearance: new google.maps.Size(2, 2)
-        		,isHidden: false
-        		,pane: "floatPane"
-        		,enableEventPropagation: false
-        	};
-            model.infoBox = new InfoBox(model.infoBoxOptions);
-        }
         
+        var fColor = model.current.Type == 1 ? "#DD88EE" : model.current.Type == 2 ? "#ffff19" : model.current.Type == 3 ? "#194fff" : "#ffffff" ;
         if (model.currentPositionMarker == undefined) {
-			if (model.current) {
-                // Create my icon
+            // Create my icon
+            model.markerIcon = { path: model.bikeSymbol[ (!model.isStarted ? 0 : model.hasTrouble ? 2 :  1)], scale: 5,  fillColor: fColor, fillOpacity: 1, strokeWeight: 2, rotation: 0 };
+			model.currentPositionMarker = new google.maps.Marker({
+				map: model.map,
+				position: curPos,
+				icon: model.markerIcon
+			});
+			var can = $("#map-canvas");
+			can.css("height", can[0].parentElement.clientHeight);
+           
+			// click on my own arrow
+			google.maps.event.addListener(model.currentPositionMarker, 'click', function() {
+				var ctn = '<table>'
+                        + '<tr>'
+                        +     '<td  style="width: 80px; height: 80px; margin-left: 20px; text-align: center; vertical-align:middle">'
+                        +         '<img src="' + (model.isStarted ? 'images/Stop.png' : 'images/Start.png') + '" style="width: 80px;" onclick="startRide()" id="imgStartStop"/>'
+                        +         '<div>' + (model.isStarted ? model.dictionary.stopTxt : model.dictionary.runTxt) + '</div>'
+                        +     '</td>'
+                        +     '<td style="width: 80px; height: 80px; margin-left: 20px; text-align: center; vertical-align:middle">'
+                        +         '<div><img src="' + (model.hasTrouble ? 'images/WrenchButtonOn.png' : 'images/WrenchButtonNeutral.png') + '" style="width: 80px; margin-left: 20px;" onclick="startStopTrouble()" class="mechanic"/>'
+                        +         '<div>' + model.dictionary.trouble + '</div></div>'
+                        +     '</td>'
+                        + '</tr>'
+                    + '</table>';
                 
-                var fColor = model.current.Type == 1 ? "#DD88EE" : model.current.Type == 2 ? "#ffff19" : model.current.Type == 3 ? "#194fff" : "#ffffff";
-                model.markerIcon = { path: model.bikeSymbol[ (!model.isStarted ? 0 : model.hasTrouble ? 2 :  1)], scale: 5,  fillColor: fColor, fillOpacity: 1, strokeWeight: 2, rotation: 0 }; //google.maps.SymbolPath.FORWARD_CLOSED_ARROW
-				model.currentPositionMarker = new google.maps.Marker({
-					map: model.map,
-					position: curPos,
-					icon: model.markerIcon
-				});
-				var can = $("#map-canvas");
-				can.css("height", can[0].parentElement.clientHeight);
-               
-                
-				// click on my own arrow
-				google.maps.event.addListener(model.currentPositionMarker, 'click', function() {
-					var ctn = '<table>'
-                            + '<tr>'
-                            +     '<td  style="width: 80px; height: 80px; margin-left: 20px; text-align: center; vertical-align:middle">'
-                            +         '<img src="' + (model.isStarted ? 'images/Stop.png' : 'images/Start.png') + '" style="width: 80px;" onclick="startRide()" id="imgStartStop"/>'
-                            +         '<div>' + (model.isStarted ? model.dictionary.stopTxt : model.dictionary.runTxt) + '</div>'
-                            +     '</td>'
-                            +     '<td style="width: 80px; height: 80px; margin-left: 20px; text-align: center; vertical-align:middle">'
-                            +         '<div><img src="' + (model.hasTrouble ? 'images/WrenchButtonOn.png' : 'images/WrenchButtonNeutral.png') + '" style="width: 80px; margin-left: 20px;" onclick="startStopTrouble()" class="mechanic"/>'
-                            +         '<div>' + model.dictionary.trouble + '</div></div>'
-                            +     '</td>'
-                            + '</tr>'
-                        + '</table>';
-					model.infoBoxText.innerHTML = ctn;
-					model.infoBox.open(model.map, this);  
-				});
-			}
+                ShowInfoWindow(this, ctn);
+			});
         } else {
             // Update my icon and position
             model.currentPositionMarker.setPosition(curPos);
@@ -410,7 +400,7 @@ geolocationApp.prototype = {
             model.markerIcon = {
                 path: model.bikeSymbol[ (!model.isStarted ? 0 : model.hasTrouble ? 2 : 1)], 
                 scale: model.markerIcon.scale,  
-                fillColor: model.current.Type == 1 ? "#DD88EE" : model.current.Type == 2 ? "#ffff19" : model.current.Type == 3 ? "#194fff" : "#ffffff", 
+                fillColor: fColor, 
                 fillOpacity: model.markerIcon.fillOpacity, 
                 strokeWeight: model.markerIcon.strokeWeight,
                 rotation: model.markerIcon.rotation
@@ -445,15 +435,22 @@ geolocationApp.prototype = {
             }
 			
 		}
-		
-		// update Riders every time, but only when started
-//		if (model.isStarted) {
-//			updateRWM(position.coords.latitude, position.coords.longitude);
-//		}
 	},
     
 	_onError:function(error) {
-        alert(model.dictionary.cannotGetLocation);
+        switch (error.code) {
+            case PositionError.PERMISSION_DENIED:
+                // WOOPS.  Access to location is denied  How come?  Tell User
+                this._setResults(model.dictionary.cannotGetLocation);
+                model.geolocationTime = -1;
+                stopRide();  // Stop the ride if we are started
+                model.map = undefined;
+                break;
+            case PositionError.POSITION_UNAVAILABLE:
+            case PositionError.TIMEOUT:
+                // Do Nothing on timeout or unavailable
+                break;
+        }
 	},
     
 	_setResults:function(value) {

@@ -1,33 +1,16 @@
 var ridersInContacts;
 
 
-function onGetKnownRiderInfoDone(rider) {
+function onGetKnownRiderInfoDone(rider, content) {
 	var re = new RegExp('##RiderName##', 'g');
-	model.infoBoxText.innerHTML = model.infoBoxText.innerHTML.replace(re, rider.displayName);
-	model.infoBoxText.innerHTML = model.infoBoxText.innerHTML.replace('##RiderContactID##', rider.id);
+	content = content.replace(re, rider.displayName);
 	if (rider.photos != null) {
-		model.infoBoxText.innerHTML = model.infoBoxText.innerHTML.replace('##RiderPhoto##', '<img src="' + rider.photos[0].value + '" style="width: 80px;"/>');
+		content = content.replace('##RiderPhoto##', '<img src="' + rider.photos[0].value + '" style="width: 80px;"/>');
 	}
 	else {
-		model.infoBoxText.innerHTML = model.infoBoxText.innerHTML.replace('##RiderPhoto##', '');
+		content = content.replace('##RiderPhoto##', '');
 	}
 }
-/*
-function onRefreshKnownRidersDone(knownRiders) {
-	model.knownRiderMarkersArray = [];
-	for (var knRr in knownRiders) {
-		for (var mrk in model.markersArray) {
-			if (knownRiders[knRr] == model.markersArray[mrk].rider.RiderId) {
-				model.knownRiderMarkersArray[model.knownRiderMarkersArray.length] = new google.maps.Marker({
-					map: model.map,
-					position:  model.markersArray[mrk].position,
-					icon: 'images/contactsml.png'
-				});
-			}
-		}
-	}
-}*/
-
 
 function addToKnwonRiders(newKnownRiderId) {
 	if (ridersInContacts == undefined)
