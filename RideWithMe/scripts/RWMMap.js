@@ -78,13 +78,17 @@ function RenderRiders() {
 	for (i = 0; i < model.bikersArray.length; i++) {
 		myBikeIds[i] = model.bikersArray[i].RiderId;
 	}
-	
+    
+    // My location for distance calc
+    var distanceMe = new LatLon( model.currentPositionMarker.getPosition().lat(),  model.currentPositionMarker.getPosition().lng());
+    
+    
 	// Loop for all the riders, excluding myself
 	for ( i = 0; i < model.riderData.length; i++) {
 		var bId = model.riderData[i].RiderId;
 		if (myBikeIds.indexOf(bId) == -1) {  // This is not me
 			// Determine if contact is known
-			var ikr = isKnownRider(model.riderData[i].RiderId);
+			var isKnown = isKnownRider(model.riderData[i].RiderId);
 			
 			// Create fill color based upon type
 			var mScale = 6;
@@ -100,11 +104,14 @@ function RenderRiders() {
 			}
 			
 			// Setup the stroke color for known riders as black, and unknown as fill color
-			var strokeColor = (ikr ? "#0" : fColor);
+			var strokeColor = (isKnown ? "#0" : fColor);
 			
 			// Covert lat/lng to map point
 			var pos = new google.maps.LatLng(model.riderData[i].Lat, model.riderData[i].Lon);
 			
+            // Calc distance to me
+            var distance = distanceMe.distanceTo(new LatLon(pos.lat(), pos.lng()));
+            
 			// Create the marker and path on screen, or marker if offscreen
 			if (model.bounds.contains(pos)) {
 				// The rider is on the screen, put in a marker and line
@@ -114,13 +121,14 @@ function RenderRiders() {
 					position: pos,
 					icon: mIcon,
 					rider: model.riderData[i],
-                    riderPos: pos
+                    riderPos: pos,
+                    distance: distance
 				});
 				
 				var styleOnly = model.riderData[i].Type > -1 ? model.riderData[i].Type.toString().substring(0, 1) : "-1";
 				model.polylineArray[model.polylineArray.length] = new google.maps.Polyline({
 					map: model.map,
-					strokeColor: styleOnly == "1" ? "#ff000c" : styleOnly == "2" ? "#ff9900" : styleOnly == "-1", "transparent" : "#0083ff",
+					strokeColor: styleOnly == "1" ? "#ff000c" : styleOnly == "2" ? "#ff9900" : styleOnly == "-1" ? "#ff0000" : "#0083ff",
 					strokeWeight: 2,
 					strokeOpacity: 1,
 					path: [
@@ -158,30 +166,40 @@ function RenderRiders() {
 					slope * halfW <= halfH) {
 					if (pos.lng() < ctr.lng()) {
 						// left edge
-						OffScreenLoc = new google.maps.LatLng(ctr.lat() - ((halfW - insetHorz) * slope), sw.lng() + insetHorz)
+						OffScreenLoc = new google.maps.LatLng(ctr.lat() - ((halfW - insetHorz) * slope), sw.lng() + (insetHorz*3));
 					}
 					else {
 						// Right edge
-						OffScreenLoc = new google.maps.LatLng((halfW - insetHorz) * slope + ctr.lat() , ne.lng() - insetHorz)
+						OffScreenLoc = new google.maps.LatLng((halfW - insetHorz) * slope + ctr.lat() , ne.lng() - insetHorz);
 					}
 				}
 				else {
 					if (pos.lat() < ctr.lat()) {
 						// bottom edge
-						OffScreenLoc = new google.maps.LatLng(sw.lat() + insetVert, ctr.lng() - ((halfH - insetVert) / slope))
+						OffScreenLoc = new google.maps.LatLng(sw.lat() + (insetVert*1.5), ctr.lng() - ((halfH - insetVert) / slope));
 					}
 					else {
 						// top edge
-						OffScreenLoc = new google.maps.LatLng(ne.lat() - insetVert, ctr.lng() + ((halfH - insetVert) / slope))
+						OffScreenLoc = new google.maps.LatLng(ne.lat() - (insetVert*1.5), ctr.lng() + ((halfH - insetVert) / slope));
 					}
 				}
+                
+                // Determine scale based upon distance
+                if (distance < 2.0)
+                    mScale = 6;
+                else if (distance < 10.0)
+                    mScale = 5;
+                else if (distance < 20.0)
+                    mScale = 4;
+                else
+                    mScale = 3;
 				
 				model.markersArray[i] = new google.maps.Marker({
 					map: model.map,
 					position: OffScreenLoc,
 					icon: {
-						path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-						scale: 3,
+						path: model.riderData[i].Type < 0 ? model.bikeSymbol[4] : model.bikeSymbol[3] ,
+						scale: mScale,
 						fillOpacity: 1,
 						fillColor: fColor,
 						rotation: 450 - calcAngle(ctr.lng(), ctr.lat(), pos.lng(), pos.lat()), // set the rotation for for the arrow
@@ -189,40 +207,55 @@ function RenderRiders() {
 						strokeWeight: 2
 					},
 					rider: model.riderData[i],
-                    riderPos: pos
+                    riderPos: pos,
+                    distance: distance,
+                    zIndex: model.riderData[i].Type < 0 ? 1100 : isKnown ? 1000 : 1000-distance // Show known riders in front always, then show close riders in front of far riders
 				});
 			}
 			
 			// Handle the clicking of the marker.  this works for both on-screen and offscreen riders
 			google.maps.event.addListener(model.markersArray[i], 'click', function() {
                 
-				var ctn = '<div style="margin: 3px;">' + model.dictionary.type + ": " + getRiderType(this.rider.Type) + '</div>' + 
-						  '<div style="margin: 3px;">' + model.dictionary.style + ": " + getRiderStyle(this.rider.Type) + '</div>';
-
-				if (ikr) {  // RWMContacts.js
-					// If the rider is known, add tokens for photo and name
-					ctn += '<div style="margin: 3px">##RiderPhoto##</div>';
-					ctn += '<div style="margin: 3px">##RiderName##</div>';
-                    getKnownRiderInfo(this.rider.RiderId, ctn);
-				} 
-				ctn += '<div style="margin: 3px; text-align: center;">' +
-					   '<button style="display: none;">' + model.dictionary.view + '</button>';
-				if (!ikr) {
-					// if rider is not known, add link to add this rider to a contact.
-					ctn += '<input type="button" onclick="showContacts(' + this.rider.RiderId + 
-						   ')" value="' + model.dictionary.createAddToContact + '" />';
-				}
-                ctn += '<input type="button" style="align: right;" onclick="panThem(' + this.riderPos.lat() +', ' + this.riderPos.lng() + ')" value="Go To Rider" />';
-                
-                ShowInfoWindow(this, ctn);
+                ShowInfoWindow(this, MakeInfoWindowContent(this));
 
 			});
 		}
 	}
 }
 
+var lastInfoWindowMarker;
+
+function MakeInfoWindowContent(RiderMarker) {
+    var isKnown = isKnownRider(RiderMarker.rider.RiderId);
+    
+    var ctn = '<div style="margin: 3px;">' + model.dictionary.type + ": " + getRiderType(RiderMarker.rider.Type) + '</div>' + 
+              '<div style="margin: 3px;">' + model.dictionary.style + ": " + getRiderStyle(RiderMarker.rider.Type) + '</div>';
+
+    if (isKnown) {  // RWMContacts.js
+        // If the rider is known, add tokens for photo and name
+        ctn += '<div style="margin: 3px">##RiderPhoto##</div>';
+        ctn += '<div style="margin: 3px">##RiderName##</div>';
+        getKnownRiderInfo(RiderMarker.rider.RiderId, ctn);
+    } 
+                
+    ctn += '<div style="margin: 3px;">' +
+           model.dictionary.distance + ": " + RiderMarker.distance +
+           ' km</div>';
+    ctn += '<div style="margin: 3px; text-align: center;">';
+    if (!isKnown && !isNoContacts) { 
+        // if rider is not known, add link to add this rider to a contact.
+        ctn += '<input type="button" onclick="showContacts(' + RiderMarker.rider.RiderId + 
+               ')" value="' + model.dictionary.createAddToContact + '" />';
+    }
+    ctn += '<input type="button" style="align: right;" onclick="panThem(' 
+        + RiderMarker.riderPos.lat() + ', ' + RiderMarker.riderPos.lng() + ')" value="' + model.dictionary.showRider + '" />';
+    
+    return ctn;
+}
+
 function ShowInfoWindow(anchor, ctn) {
     if (model.infoBox) { model.infoBox.close(); model.infoBox = undefined; }
+    lastInfoWindowMarker = anchor;
     
     var fullContent = '<div id="infoBox">' + ctn + '</div>';
     
@@ -237,6 +270,11 @@ function HideInfoWindow() {
         model.infoBox = undefined; 
         RenderRiders();
     }
+}
+
+function reshowLastInfoWindow() {
+    if (lastInfoWindowMarker)
+        ShowInfoWindow(lastInfoWindowMarker, MakeInfoWindowContent(lastInfoWindowMarker));
 }
 
 function updateRWM() {
@@ -256,36 +294,40 @@ function updateRWM() {
     }
     
     var curPos = model.currentPositionMarker.getPosition();
+
     
-	var typestyle = model.current.Type * 10 + model.current.Style;
-	if (model.hasTrouble)
-		typestyle = -1;
 	var showAll = $("#cbOneOrAllTypes").val() == "on" ? "true" : "false";
-	var myUrl = urls.updateRWMUrl + "riderId=" + model.current.RiderId + "&lat=" + curPos.lat() + "&lon=" + curPos.lng() + "&heading=" + model.markerIcon.rotation + 
-				"&type=" + typestyle + "&pelSize=10&showAll=" + showAll + "&ts=" + new Date().getTime();
-	if (!(navigator.connection.type == Connection.NONE)) {
-		$.ajax({
-			type: "GET",
-			url: myUrl,
-			contentType: "application/json; charset=utf-8",
-			crossDomain: true,
-			dataType: "json",
-			timeout: 15000,
-			success: function(data) {
-				UpdateRiderData(data)
-			},
-			fail: function () {
-				console.log("Error calling " + myUrl);
-			},
-			error: function (xhr, status, error) {
-				console.log("UpdateRWM" + ':' + error);
-			}
-		});
-	}
-    
+    UpdateRWMServer(model.current.RiderId, curPos.lat(), curPos.lng(), model.markerIcon.rotation, model.current.Type, model.current.Style, model.hasTrouble, showAll, 10, UpdateRiderData);
+        
     // Start another loop if we are running
     if (model.isStarted)
         model.timerUpdateRWM = self.setTimeout( function() { updateRWM(); }, model.refreshTime);
+}
+
+function UpdateRWMServer(riderId, lat, lng, heading, riderType, rideStyle, hasTrouble, showAll, pelSize, successCallback) {
+    if (!(navigator.connection.type == Connection.NONE)) {
+        var typestyle = riderType * 10 + rideStyle;
+        if (hasTrouble)
+            typestyle = -1;
+
+        var myUrl = urls.updateRWMUrl + "riderId=" + riderId + "&lat=" + lat + "&lon=" + lng + "&heading=" + heading + 
+                    "&type=" + typestyle + "&pelSize=" + pelSize + "&showAll=" + showAll + "&ts=" + new Date().getTime();
+
+        $.ajax({
+            type: "GET",
+            url: myUrl,
+            contentType: "application/json; charset=utf-8",
+            crossDomain: true,
+            dataType: "json",
+            timeout: 15000,
+            success: function(data) {
+                UpdateRiderData(data)
+            },
+            error: function (xhr, status, error) {
+                console.log("UpdateRWM" + ':' + error);
+            }
+        });
+    }
 }
 
 function refreshMap() {
@@ -342,8 +384,9 @@ geolocationApp.prototype = {
     
 	_handleWatch:function() {
 		var that = this;
-		
-		that._setResults(model.dictionary.waitingForGeolocationInformation);
+        if (model.dictionary != undefined) {
+            that._setResults(model.dictionary.waitingForGeolocationInformation);
+        }
 	},
     
 	_onSuccess:function(position) {
@@ -367,7 +410,7 @@ geolocationApp.prototype = {
         var fColor = model.current.Type == 1 ? "#DD88EE" : model.current.Type == 2 ? "#ffff19" : model.current.Type == 3 ? "#194fff" : "#ffffff" ;
         if (model.currentPositionMarker == undefined) {
             // Create my icon
-            model.markerIcon = { path: model.bikeSymbol[ (!model.isStarted ? 0 : model.hasTrouble ? 2 :  1)], scale: 5,  fillColor: fColor, fillOpacity: 1, strokeWeight: 2, rotation: 0 };
+            model.markerIcon = { path: model.bikeSymbol[ (!model.isStarted ? 0 : model.hasTrouble ? 2 :  1)], scale: 7,  fillColor: fColor, fillOpacity: 1, strokeWeight: 2, rotation: 0 };
 			model.currentPositionMarker = new google.maps.Marker({
 				map: model.map,
 				position: curPos,
@@ -421,19 +464,7 @@ geolocationApp.prototype = {
 			model.prevLon = position.coords.longitude;
             
             // re-initialize the off-Timer
-            if (model.offTimer) {
-                window.clearTimeout(model.offTimer);
-                model.offTimer = 0;
-            }
-            if (model.isStarted) {
-                model.offTimer = window.setTimeout(function() {
-                    if (model.current.Type > 0) {
-                        // AutoStop ride if not mechanics
-                        stopRide();
-                    }
-                }, 3600000);
-            }
-			
+            watchdogBump();			
 		}
 	},
     

@@ -40,10 +40,23 @@
     position: absolute; top: 15%; left:-120px; width:220px; height:220px;
     border:3px; border-radius:30px;
 }
+#lblOnlyMyType{
+    text-align: right; margin-right: 10px;  text-wrap: true;
+}
 
 #pullout{
     position: absolute; 
     top: 60px; right: 0px;
+}
+
+#pushOpen{
+    -webkit-transform:rotate(90deg);
+    transform:rotate(90deg);
+    text-align:center;
+    margin-right:-30px;
+    margin-top: 40px;
+    height:auto;
+    width:80px;
 }
 
 .stopLight{

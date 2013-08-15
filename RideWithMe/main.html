@@ -9,7 +9,8 @@
 		<script src="cordova.js"></script>
 		<script src="kendo/js/jquery.min.js"></script>
 		<script src="kendo/js/kendo.mobile.min.js"></script>
-        <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+        <script src="scripts/LatLng.js"></script>
 		<script src="scripts/Helpers.js"></script>
 		<script src="scripts/RWMCulture.js"></script>
 		<script src="scripts/RWMMechanic.js"></script>
@@ -22,30 +23,7 @@
 		<script src="scripts/RideWithMe.js"></script>
 	</head>
 	<body>
-<!--		<div data-role="view" id="tabstrip-play" data-title="Ride With Me">
- 			<div id="startStop">
-				<div class="dataConnection">NO DATA CONNECTION</div>
-                <div class="lowBattery">LOW BATTERY</div>
-				<div>
-					<img src="images/Start.png" onclick="startRide()" id="imgStartStop"/>
-				</div>
-				<div id="lblRunStop" onclick="startRide()">stst</div>
-
-    			<p id="showAllRiders">
-    				<span> <span id="lblShowAllRiders"></span>
-    					<input data-role="switch" id="cbOneOrAllTypes"/> <span id="lblOnlyMyType"></span> </span>
-    			</p>
-    		</div>
-            <div id="wrench">
-                <div>
-    				<img src="images/WrenchButtonNeutral.png" style="width: 120px;" onclick="startStopTrouble()" class="mechanic"/>
-                </div>
-                <div id="lblTrouble" onclick="startStopTrouble()">stst</div> 
-			</div>
-		</div>  -->
-
-
-
+        <!--map-->
 		<div data-role="view" id="tabstrip-map" data-title="Map" data-stretch="true" data-show="afterShowMapTab">
 			<div id="map-canvas" style="height:100%; width:100%"></div>
 			<img src="images/Zoom.png" onclick="zoomToDefault()" id="imgZoom"/>
@@ -66,7 +44,8 @@
                     </span>
     			</p>
                 <div id="pullout">
-                    <img src="images/pull.png" onclick="overlayStartStop()" />
+                    <input id="pushOpen" type="button" value="drücken" onclick="overlayStartStop()" />
+                    <!-- <button style="height: 100px; width: 25px"><img src="images/pull.png" onclick="overlayStartStop()" style="left: 0px" /></button> -->
                 </div>
                 <img id="stopLightStop" class="stopLight" src="images/stoplightStop.png" />
                 <img id="stopLightGO" style="display: none" class="stopLight" src="images/stoplightGO.png" />
@@ -74,6 +53,7 @@
 
 		</div>
 
+        <!--bikes-->
 		<div data-role="view" id="tabstrip-bikes" data-show="applyDictionary">
 			<header data-role="header">
 				<div data-role="navbar">
@@ -151,6 +131,7 @@
 			<input type="hidden" id="txtBikeId" />
 		</div>
 
+        <!--choose bike-->
         <div data-role="view" id="tabstrip-choosebike">
 			<header data-role="header">
 				<div data-role="navbar">
@@ -163,6 +144,7 @@
 			</script>
 		</div>
         
+        <!-- bikeslist -->
 		<div data-role="view" id="tabstrip-bikeslist" data-show="AfterTabstripBikes">
 			<header data-role="header">
 				<div data-role="navbar">
@@ -179,15 +161,39 @@
 			</script>
 		</div>
 
-		<div data-role="view" id="tabstrip-contactlist" data-title="Create/Add To Contacts" data-show="applyDictionary">
-			<ul data-role="listview" data-style="inset" id="selContacts" data-layout="databinding"></ul>
+        <!-- contactlist -->>
+		<div data-role="view" id="tabstrip-contactlist" data-title="Create/Add To Contacts" data-init="initContactsList" data-show="refreshContactList">
+			<ul data-role="listview" data-style="inset" id="selContacts" data-style="inset"></ul>
 			<script id="contactsTemplate" type="text/x-kendo-template">
-				<div>${name2}</div>
+				${name2}<img src="images/Link.png" style="display: ${showIcon}" /><a id="btnLinkContact" data-role="detailbutton" data-style="detaildisclose"></a>
 			</script>
 		</div>
+        
+        <!--contact view/link-->
+        <div data-role="view" id="contactView" data-title="Link" data-show="applyDictionary">
+            <header data-role="header">
+                <div data-role="navbar">
+                    <a data-role="button" data-align="left" onclick="cancelLinkContacts()" data-rel="actionsheet"  data-icon="reply" id="lblCancel">Cancel</a>
+                    <span data-role="view-title" id="lblConnectxx"></span>
+                    <a id="saveLinkContacts" data-role="button" onclick="saveLinkContacts()" data-align="right" class="toggleButton" data-icon="action">Connect</a>
+                </div>
+            </header>
+            <ul data-role="listview" data-style="inset">
+				<li>
+                    <div style="height: 50px">
+					    <span id="contactName"></span>
+                    </div>
+                    <div style="height: 50px;" >
+                        <button id="saveLinkContacts" style="left: 0px" onclick="saveLinkContacts()">Connect to contact</button>
+                        <button id="unlinkContacts" style="margin-right: 0px" onclick="unlinkContact()">Unlink contact</button>
+                    </div>
+				</li>
+			</ul>
+        </div>
 
-		<div data-role="view" id="tabstrip-devtools" data-title="DevTools">
-			<div id="status">
+        <!--dev tools-->
+        <div data-role="view" id="tabstrip-devtools" data-title="DevTools">
+        <!-- <div id="status">
 				<h2>Version 9</h2>
 				<ul id="statusList"></ul>
 			</div>
@@ -209,10 +215,11 @@
 			</div>
 			<div>
 				<a data-role="button" onclick="dummyContactTest()">Test Add To Contact</a>
-			</div>
+			</div> -->
 
 		</div>
 
+        <!--tabstrip-->
 		<div data-role="layout" data-id="mobile-tabstrip">
 			<div data-role="footer">
 				<div data-role="tabstrip">

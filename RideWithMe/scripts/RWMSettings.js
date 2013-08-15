@@ -50,7 +50,7 @@ function getId() {
 
 function getRiderType(rType) {
 	rType = rType.toString().substring(0, 1);
-	return rType == '1' ? model.dictionary.mountainBike : rType == '2' ? model.dictionary.road : rType == '3' ? model.dictionary.tour : model.dictionary.breakdown;
+	return rType == '1' ? model.dictionary.mountainBike : rType == '2' ? model.dictionary.road : rType == '3' ? model.dictionary.tour : model.dictionary.trouble;
 }
 
 function getRiderStyle(rStyle) {

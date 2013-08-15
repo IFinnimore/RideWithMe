@@ -44,6 +44,7 @@ function model() {
 
 
 $(document).ready(function() {
+    //jQuery.noConflict();
 	urls = {
 		getRiderIdUrl: "http://ridewithme.co/services/RideWithMe/RideWithMeService.svc/GetNewRiderId",
 		updateRWMUrl: "http://ridewithme.co/services/RideWithMe/RideWithMeService.svc/UpdateRwm/?",
@@ -64,9 +65,11 @@ $(document).ready(function() {
     
     // SVG paths for the symbols about the bike
     model.bikeSymbol = [];
-     model.bikeSymbol[0] = 'M1 2.5L2.5 1 2.5 -1 1 -2.5 -1 -2.5 -2.5 -1 -2.5 1 -1 2.5z M1 -4L0 -6 -1 -4z' // me stopped
-     model.bikeSymbol[1] = 'M0 1.5L2 2.5 0 -2.5 -2 2.5z'; // me running
-     model.bikeSymbol[2] = 'M0 1L2 3 C0.5 4.5 2.5 6.5 4 5L3 4 4 3 5 4 C6.5 2.5 4.5 0.5 3 2L-2 -3 C-0.5 -4.5 -2.5 -6.5 -4 -5L-3 -4 -4 -3 -5 -4C-6.5 -2.5 -4.5 -0.5 -3 -2z' // me.Wrench
+     model.bikeSymbol[0] = 'M1 2.5L2.5 1 2.5 -1 1 -2.5 -1 -2.5 -2.5 -1 -2.5 1 -1 2.5z M1 -4L0 -6 -1 -4z'; // me stopped
+     model.bikeSymbol[1] = 'M0 3.5L2 2.5 0 -2.5 -2 2.5z'; // me running
+     model.bikeSymbol[2] = 'M0 1L2 3 C0.5 4.5 2.5 6.5 4 5L3 4 4 3 5 4 C6.5 2.5 4.5 0.5 3 2L-2 -3 C-0.5 -4.5 -2.5 -6.5 -4 -5L-3 -4 -4 -3 -5 -4C-6.5 -2.5 -4.5 -0.5 -3 -2z'; // me.Wrench
+     model.bikeSymbol[3] = 'M0 1.5L2 2.5 0 -2.5 -2 2.5z'; // Offscreen other
+     model.bikeSymbol[4] = 'M0 1.5L2 2.5 0 -2.5 -2 2.5zM0 1L2 3 C0.5 4.5 2.5 6.5 4 5L3 4 4 3 5 4 C6.5 2.5 4.5 0.5 3 2L-2 -3 C-0.5 -4.5 -2.5 -6.5 -4 -5L-3 -4 -4 -3 -5 -4C-6.5 -2.5 -4.5 -0.5 -3 -2z'; // offscreen other with wrench
 
     // defaulting to an empty "Current"
     model.current = {
@@ -91,10 +94,11 @@ $(document).ready(function() {
 	if (oneOrAll == "true") {
 		$("#cbOneOrAllTypes").prop("checked", true);
 	}
-    
     setupLanguage(); // RMWCulture.js
     
     startMap();
+    
+    //initContactsList();
 });
 
 document.addEventListener("deviceready", onDeviceReady, false);
@@ -102,7 +106,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
 function onDeviceReady() {
     // setup dictionary and bikes
     //alert("documentready event");
-    applyDictionary();
+    setupLanguage(); // RMWCulture.js
 	loadListOfBikes();
 	refreshKnownRiders();
     
@@ -137,9 +141,14 @@ function onDeviceReady() {
     startMap();
 }
 
+var mapStartState = 0;
 function startMap() {
-    window.setTimeout( function() {
-    afterShowMapTab(); }, 10);
+    mapStartState += 1;
+    if (mapStartState == 2) {
+        window.setTimeout(function() {
+            afterShowMapTab();
+        }, 100);
+    }
 }
 
 function startRide() {
@@ -182,6 +191,9 @@ function startRide() {
             zoomToDefault();
         }
         
+
+        watchdogBump();
+
         // Start the UpdateRWM timer by updating RWM in 2 seconds (allows time for initial GPS location)
         model.timerUpdateRWM = self.setTimeout( function() { updateRWM(); }, 2000);
         
@@ -211,6 +223,8 @@ function stopRide() {
     if (model.hasTrouble) {
         startStopTrouble();
     }
+
+    watchdogBump();
     
     // Go to the Start/Stop screen (may already be there)
     location.href = "#tabstrip-map";
@@ -252,6 +266,19 @@ function stopRide() {
     
     // Clear everyone else out
     RenderRiders();
+}
+
+function watchdogBump() {
+    if (model.offTimer) {
+        window.clearTimeout(model.offTimer);
+        model.offTimer = 0;
+    }
+    if (model.isStarted) {
+        model.offTimer = window.setTimeout(function() {
+            // AutoStop ride if not mechanics
+            stopRide();
+        }, 3600000);
+    }
 }
 
 function displayRunState(Running) {

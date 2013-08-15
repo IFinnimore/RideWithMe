@@ -1,87 +1,104 @@
 function setupLanguage() {
     model.culture = navigator.language.substr(0, 2);
-    switch (model.culture) {
-		case "de":
-			model.dictionary = new deutsch();
-			break;
-		default:
-			model.dictionary = new english();
-			break;
-	}
+    
+    if (model.dictionary== undefined) {
+        $.ajax({
+          url: 'text.json',
+          dataType: 'json',
+          async: false,
+          success: function(data) {
+            loadedLangData(data);
+          }
+        });
+    } else {
+        // We already have a dictionary
+        applyDictionary();
+    }
 }
 
-function english(){
-    this.runStop = "Start/Stop";
-    this.runTxt = "Start";
-    this.stopTxt = "Stop";
-    this.map = "Map";
-    this.bikes = "Bikes";
-    this.showAllRiders = "all riders";
-    this.onlyMyType = "Show only my type";
-    this.all = "All";
-    this.type = "Type";
-    this.cancel = "Cancel";
-    this.done = "Done";
-    this.description = "Description";
-    this.getNew = "Get New";
-    this.edit = "Edit";
-    this.style = "Style";
-    this.mountainBike = "Mountain Bike";
-    this.road = "Road";
-    this.tour = "Tour";
-    this.competition = "Competition";
-    this.recreation = "Recreation";
-    this.leisure = "Leisure";
-    this.createAddToContact = "Connect to contact";
-    this.waitingForGeolocationInformation = "Waiting for geolocation information";
-    this.saveIDToContact = 'Save ID #{0} to "{1}"?';
-    this.riderIDSaved = 'Rider ID saved to "{0}".';
-    this.chooseBike = "Choose Bike";
-    this.add="Add";
-    this.breakdown="Breakdown"
-    this.myBike="My bike";
-    this.view = "View";
-	this.dataConnection="NO DATA CONNECTION";
-    this.lowPower="BATTERY TOO LOW";
-    this.trouble="Trouble";
-    this.cannotGetLocation="Cannot get location.  Please check permissions";
+function loadedLangData(data) {
+    
+    var index = data.langCodeIndex.indexOf(model.culture)
+    if (index < 0) index = data.defaultLangIndex; // Default to text.json default language
+    var lang = new allLang();
+    applyLang(lang, data, index);
+    model.dictionary = lang;
+    applyDictionary();
 }
 
-function deutsch(){
-    this.runStop = "Start/Stop";
-    this.runTxt = "Start";
-    this.stopTxt = "Stop";
-    this.map = "Karte";
-    this.bikes = "Räder";
-    this.showAllRiders = "Zeige alle";
-    this.onlyMyType = "Nur meine Art";
-    this.all = "Alle";
-    this.type = "Art";
-    this.cancel = "Abbrechen";
-    this.done = "Fertig";
-    this.description = "Beschreibung";
-    this.getNew = "Neue ID";
-    this.edit = "Bearbeiten";
-    this.style = "Stil";
-    this.mountainBike = "Mountain Bike";
-    this.road = "Straßenfahrrad";
-    this.tour = "Tour-Fahrrad";
-    this.competition = "Wettbewerb";
-    this.recreation = "Erholung";
-    this.leisure = "Freizeit";
-    this.createAddToContact = "Zu Kontakt verbinden";
-    this.waitingForGeolocationInformation = "Warte auf GPS-Daten";
-    this.saveIDToContact = 'ID #{0} zu "{1}" speichern?';
-    this.riderIDSaved = 'ID zu "{0}" gespeichert.';
-    this.breakdown="Beschädigt";
-    this.chooseBike = "Rad auswählen";
-    this.add="Hinzufügen";
-    this.myBike="Mein Fahrrad";
-    this.view = "Anzeigen";
-	this.dataConnection="Keine Datenverbindung";
-    this.lowPower="Batterie zu niedrig";
-    this.trouble="Probleme";
-    this.cannotGetLocation="Kann nicht gelegen. Bitte überprüfen Sie die Berechtigungen"
+function applyLang(allLang, newLang, index) {
+    allLang.runTxt = newLang.runTxt[index];
+    allLang.stopTxt = newLang.stopTxt[index];
+    allLang.map = newLang.map[index];
+    allLang.bikes = newLang.bikes[index];
+    allLang.showAllRiders = newLang.showAllRiders[index];
+    allLang.onlyMyType = newLang.onlyMyType[index];
+    allLang.all = newLang.all[index];
+    allLang.type = newLang.type[index];
+    allLang.cancel = newLang.cancel[index];
+    allLang.done = newLang.done[index];
+    allLang.description = newLang.description[index];
+    allLang.getNew = newLang.getNew[index];
+    allLang.edit = newLang.edit[index];
+    allLang.style = newLang.style[index];
+    allLang.mountainBike = newLang.mountainBike[index];
+    allLang.road = newLang.road[index];
+    allLang.tour = newLang.tour[index];
+    allLang.competition = newLang.competition[index];
+    allLang.recreation = newLang.recreation[index];
+    allLang.leisure = newLang.leisure[index];
+    allLang.createAddToContact = newLang.createAddToContact[index];
+    allLang.waitingForGeolocationInformation = newLang.waitingForGeolocationInformation[index];
+    allLang.saveIDToContact = newLang.saveIDToContact[index];
+    allLang.riderIDSaved = newLang.riderIDSaved[index];
+    allLang.chooseBike = newLang.chooseBike[index];
+    allLang.add = newLang.add[index];
+    allLang.myBike = newLang.myBike[index];
+	allLang.dataConnection = newLang.dataConnection[index];
+    allLang.lowPower = newLang.lowPower[index];
+    allLang.trouble = newLang.trouble[index];
+    allLang.cannotGetLocation = newLang.cannotGetLocation[index];
+    allLang.pushOpen = newLang.pushOpen[index];
+    allLang.distance = newLang.distance[index];
+    allLang.showRider = newLang.showRider[index];
+}
+
+function allLang(){
+    this.runStop = "";
+    this.runTxt= "";
+    this.stopTxt= "";
+    this.map= "";
+    this.bikes = "";
+    this.showAllRiders= "";
+    this.onlyMyType= "";
+    this.all= "";
+    this.type= "";
+    this.cancel = "";
+    this.done = "";
+    this.description = "";
+    this.getNew = "";
+    this.edit = "";
+    this.style = "";
+    this.mountainBike = "";
+    this.road = "";
+    this.tour = "";
+    this.competition = "";
+    this.recreation = "";
+    this.leisure = "";
+    this.createAddToContact = "";
+    this.waitingForGeolocationInformation = "";
+    this.saveIDToContact = "";
+    this.riderIDSaved = "";
+    this.chooseBike = "";
+    this.add= "";
+    this.myBike= "";
+	this.dataConnection= "";
+    this.lowPower= "";
+    this.trouble= "";
+    this.cannotGetLocation= "";
+    this.pushOpen= "";
+    this.distance="";
+    this.showRider="";
 }
 
 function applyDictionary(){
@@ -91,7 +108,6 @@ function applyDictionary(){
     $("#lblOnlyMyType").html(md.onlyMyType);
     $("#showAllRiders .km-switch-label-off").html(md.all);
     $("#showAllRiders .km-switch-label-on").html(md.type);
-    $("#lblRunStop .km-text").html(md.runStop);
     $("#theMap .km-text").html(md.map);
     $("#lblBikes .km-text").html(md.bikes);
     $("#lblChooseBikeTitle").html(md.chooseBike);
@@ -113,6 +129,7 @@ function applyDictionary(){
     $("#lblRunStop").html(md.runTxt);
     $("#lblTrouble").html(md.trouble);
     $(".lowBattery").html(md.lowPower);
+    $("#pushOpen").prop("value",md.pushOpen);
 }
 
 
