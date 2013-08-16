@@ -170,7 +170,7 @@
 		</div>
         
         <!--contact view/link-->
-        <div data-role="view" id="contactView" data-title="Link" data-show="applyDictionary">
+        <div data-role="view" id="contactView" data-title="Link"  data-transition="slide:left" data-show="applyDictionary">
             <header data-role="header">
                 <div data-role="navbar">
                     <a data-role="button" data-align="left" onclick="cancelLinkContacts()" data-rel="actionsheet"  data-icon="reply" id="lblCancel">Cancel</a>
@@ -182,10 +182,11 @@
 				<li>
                     <div style="height: 50px">
 					    <span id="contactName"></span>
+                        <div>
+                            <button id="unlinkContacts" style="margin-right: 0px" onclick="unlinkContact()">Unlink contact</button>
+                        </div>
                     </div>
-                    <div style="height: 50px;" >
-                        <button id="saveLinkContacts" style="left: 0px" onclick="saveLinkContacts()">Connect to contact</button>
-                        <button id="unlinkContacts" style="margin-right: 0px" onclick="unlinkContact()">Unlink contact</button>
+                    <div id="phoneNumbers" >
                     </div>
 				</li>
 			</ul>
@@ -224,16 +225,15 @@
 			<div data-role="footer">
 				<div data-role="tabstrip">
 					<!-- leave the innerHTML as is - if removed, multilanguage is not supported -->
-					<!-- <a href="#tabstrip-play" data-icon="play" id="lblRunStop">Run/Stop</a> -->
-					<a href="#tabstrip-map" data-icon="globe" id="theMap">Map</a>
-					<a href="#tabstrip-bikeslist" data-icon="contacts" id="lblBikes">Bikes</a>
+					<a href="#tabstrip-map" data-icon="globe" data-transition="slide: left reverse">id="theMap">Map</a>
+					<a href="#tabstrip-bikeslist" data-transition="slide: left reverse" data-icon="contacts" id="lblBikes">Bikes</a>
 					<!-- <a href="#tabstrip-devtools" data-icon="organize" id="devtools">Dev.Tools</a> -->
 				</div>
 			</div>
 		</div>
 
 		<script>
-			var app = new kendo.mobile.Application(document.body, { transition: "slide", layout: "mobile-tabstrip" });
+			var app = new kendo.mobile.Application(document.body, { transition: "slide:left", layout: "mobile-tabstrip" });
 		</script>
 	</body>
 </html>

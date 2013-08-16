@@ -61,6 +61,8 @@ function applyLang(allLang, newLang, index) {
     allLang.pushOpen = newLang.pushOpen[index];
     allLang.distance = newLang.distance[index];
     allLang.showRider = newLang.showRider[index];
+    allLang.showContact = newLang.showContact[index];
+    allLang.unlinkContact = newLang.unlinkContact[index];
 }
 
 function allLang(){
@@ -99,6 +101,8 @@ function allLang(){
     this.pushOpen= "";
     this.distance="";
     this.showRider="";
+    this.showContact="";
+    this.unlinkContact="";
 }
 
 function applyDictionary(){
@@ -130,6 +134,7 @@ function applyDictionary(){
     $("#lblTrouble").html(md.trouble);
     $(".lowBattery").html(md.lowPower);
     $("#pushOpen").prop("value",md.pushOpen);
+    $("#unlinkContacts").prop("value",md.unlinkContact);
 }
 
 

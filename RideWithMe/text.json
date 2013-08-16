@@ -48,7 +48,8 @@
 		{ "cannotGetLocation" : "Warning message when the application is not allowed to access the GPS, and so cannot run" },
 		{ "pushOpen" : "button short label, indicating to press here to open the start/stop overlay"},
         { "distance" : "label of the distance in km from you to the rider in a straight line"},
-        { "showRider" : "button to center the map on the selected rider"}
+        { "showRider" : "button to center the map on the selected rider"},
+        { "showContact" : "button: Show the contact info"}
    ],
     "runTxt":[
       "Start",
@@ -457,5 +458,29 @@
         "visualizzare ciclista", 
         "צפייה ברוכב אופניים",  
         "vidjeli biciklist" 
-    ]
+    ],    
+    "showContact":[
+        "View Contact", 
+        "Kontakt anzeigen", 
+        "afficher le contact", 
+        "ver contacto", 
+        "показать контакты", 
+        "查看联系", 
+        "ogled stik", 
+        "Visualizza contatto", 
+        "להציג קשר",  
+        "vidite obratite" 
+    ],
+   "unlinkContact" : [ 
+        "Unlink Contact", 
+        "Trennen Kontakt", 
+        "débranchez contacter", 
+        "Desconecte Contacto", 
+        "Отключите Контакты", 
+        "断开联系", 
+        "Odklopite Kontakt", 
+        "Staccare Contatto", 
+        "נתקו קשר",  
+        "Odvojite Kontakt" 
+   ]
 }

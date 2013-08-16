@@ -55,6 +55,9 @@ function RenderRiders() {
 	// If we don't know the scale of the map, we cannot display anything
 	if (model.bounds == undefined)
 		return;
+    
+    // Get rid of the old info window, as we are recreating the markers
+    HideInfoWindow();
 	
 	// Clean out old markers and lines
     var i;
@@ -121,6 +124,7 @@ function RenderRiders() {
 					position: pos,
 					icon: mIcon,
 					rider: model.riderData[i],
+                    isKnownRider: isKnown, 
                     riderPos: pos,
                     distance: distance
 				});
@@ -207,6 +211,7 @@ function RenderRiders() {
 						strokeWeight: 2
 					},
 					rider: model.riderData[i],
+                    isKnownRider: isKnown, 
                     riderPos: pos,
                     distance: distance,
                     zIndex: model.riderData[i].Type < 0 ? 1100 : isKnown ? 1000 : 1000-distance // Show known riders in front always, then show close riders in front of far riders
@@ -226,26 +231,28 @@ function RenderRiders() {
 var lastInfoWindowMarker;
 
 function MakeInfoWindowContent(RiderMarker) {
-    var isKnown = isKnownRider(RiderMarker.rider.RiderId);
-    
     var ctn = '<div style="margin: 3px;">' + model.dictionary.type + ": " + getRiderType(RiderMarker.rider.Type) + '</div>' + 
               '<div style="margin: 3px;">' + model.dictionary.style + ": " + getRiderStyle(RiderMarker.rider.Type) + '</div>';
 
-    if (isKnown) {  // RWMContacts.js
+    if (RiderMarker.isKnownRider) {  // RWMContacts.js
         // If the rider is known, add tokens for photo and name
-        ctn += '<div style="margin: 3px">##RiderPhoto##</div>';
+        ctn += '<div style="margin: 3px"><div style="height: 80px">##RiderPhoto##</div></div>';
         ctn += '<div style="margin: 3px">##RiderName##</div>';
-        getKnownRiderInfo(RiderMarker.rider.RiderId, ctn);
+        //getKnownRiderInfo(RiderMarker.rider.RiderId, ctn);
     } 
                 
     ctn += '<div style="margin: 3px;">' +
            model.dictionary.distance + ": " + RiderMarker.distance +
            ' km</div>';
     ctn += '<div style="margin: 3px; text-align: center;">';
-    if (!isKnown && !isNoContacts) { 
+    if (!RiderMarker.isKnownRider && !isNoContacts) { 
         // if rider is not known, add link to add this rider to a contact.
         ctn += '<input type="button" onclick="showContacts(' + RiderMarker.rider.RiderId + 
                ')" value="' + model.dictionary.createAddToContact + '" />';
+    } else {
+        // if rider is known, add link to show this rider to a contact.
+        ctn += '<input type="button" onclick="showContactDetailsClickMarker(' + RiderMarker.rider.RiderId + 
+               ')" value="' + model.dictionary.showContact + '" />';
     }
     ctn += '<input type="button" style="align: right;" onclick="panThem(' 
         + RiderMarker.riderPos.lat() + ', ' + RiderMarker.riderPos.lng() + ')" value="' + model.dictionary.showRider + '" />';
@@ -259,15 +266,19 @@ function ShowInfoWindow(anchor, ctn) {
     
     var fullContent = '<div id="infoBox">' + ctn + '</div>';
     
+    // Create and open the infoWindow
     model.infoBox = new google.maps.InfoWindow({content: fullContent});
 	model.infoBox.open(model.map, anchor);
+    
+    if (anchor.isKnownRider)
+        google.maps.event.addListenerOnce(model.infoBox, 'domready', function () { getKnownRiderInfo(lastInfoWindowMarker.rider.RiderId) });
     google.maps.event.addListener(model.infoBox, 'closeclick', HideInfoWindow );
 }
 
 function HideInfoWindow() {
     if (model.infoBox) {
         model.infoBox.close();
-        model.infoBox = undefined; 
+        model.infoBox = null; 
         RenderRiders();
     }
 }

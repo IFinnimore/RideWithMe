@@ -1,6 +1,11 @@
 var localContacts = [];
 
-var simulator = true;
+function isSimulator() {
+    if (device && (device.uuid=='e0101010d38bde8e6740011221af335301010333' || device.uuid=='e0908060g38bde8e6740011221af335301010333'))  // IOS is ...333 Android is 
+        return true;
+    else
+        console.log(device.uuid);
+}
 
 var isNoContacts = false;
 
@@ -42,11 +47,10 @@ function refreshContacts() {
 	options.multiple = true;
 	var fields = ["name", "displayName", "phoneNumbers", "id"];
     
-    if (!simulator) {
+    if (!isSimulator()) {
         // lookup contacts
         navigator.contacts.find(fields, onRefreshContactSuccess, onFindContactError, options);
     } else {
-        
         onRefreshContactSuccess(contactsSimulatorData());
     }
 }
@@ -87,8 +91,10 @@ function onRefreshContactSuccess(contacts) {
 
 function refreshContactList(){
     var listview = $("#selContacts").data("kendoMobileListView");
-    if (listview)
-        listview.refresh();    
+    if (listview) {
+        listview.refresh();
+        listview.dataSource.read();
+    }
 }
 
 function initContactsList() {
@@ -100,20 +106,66 @@ function initContactsList() {
         template: $("#contactsTemplate").html(),
         click: function(item) {
             if (item && item.dataItem) {
-                // Populate the View Contact tab
-                $("#contactName").html(item.dataItem.name2);
-                if (item.dataItem.showIcon == "none")
-                    $("#unlinkContacts").hide();
-                else
-                    $("#unlinkContacts").show();
-                
-                currentContact = item.dataItem.contact;
-                
-                // Show the tab
-                location.href = "#contactView";
+                showContactDetails(item.dataItem);
             }
         }
     });
+}
+
+function showContactDetailsClickMarker(riderID) {
+    // Find the contact based upon the rider id
+    var localContact;
+    contactRiderId = riderID;
+    
+    for (var i=0, len=localContacts.length;i<len;i++) {
+        if (localContacts[i].contact.phoneNumbers != null) {
+            var pn = localContacts[i].contact.phoneNumbers;
+            for( var j=0, pLen=pn.length; j< pLen; j++) {
+                if (pn[j].value.indexOf("#rwmid#") == 0 && pn[j].value.indexOf(riderID) >= 0) {
+                    // found them
+                    localContact = localContacts[i];
+                    break;
+                }
+            }
+        }
+    }
+    
+    // Show contact details
+    showContactDetails(localContact, true);
+}
+
+function showContactDetails(localContact, hideDone) {
+    if (localContact == undefined) return;
+    if (!hideDone) hideDone = false;
+    
+    // Populate the View Contact tab
+    $("#contactName").html(localContact.name2);
+    if (localContact.showIcon == "none")
+        $("#unlinkContacts").hide();
+    else
+        $("#unlinkContacts").show();
+    
+    if (hideDone)
+        $("#saveLinkContacts").hide();
+    else
+        $("#saveLinkContacts").show();
+    
+    var phoneNumberList = "";
+    if (localContact.contact.phoneNumbers) {
+        phoneNumberList = '<table>';
+        for (var i=0, len= localContact.contact.phoneNumbers.length; i<len;i++) {
+            if (localContact.contact.phoneNumbers[i].value.indexOf("#rwmid#") < 0) {
+                phoneNumberList += '<tr><td><span style="text-align: left">' + localContact.contact.phoneNumbers[i].type + '</span></td>'
+                                 + '<td><span style="text-align: right; margin-left: 20px">' 
+                                 + '<a href="tel:' + localContact.contact.phoneNumbers[i].value +'">' + localContact.contact.phoneNumbers[i].value + '</a></span></td></tr>';
+            }
+        }
+     }
+    $("#phoneNumbers").html(phoneNumberList);
+    currentContact = localContact.contact;
+                
+    // Show the tab
+    location.href = "#contactView";
 }
 
 function showContacts(cRiderId) {
@@ -128,12 +180,14 @@ function saveLinkContacts() {
     var pn = currentContact.phoneNumbers;
     if (pn == undefined || pn == null)
         pn = [];
-    pn[pn.length] = new ContactField('other', '#rwmid#' + contactRiderId, false);
+    pn.push(new ContactField('other', '#rwmid#' + contactRiderId, false));
     currentContact.phoneNumbers = pn;
-    if (!simulator)
+    if (!isSimulator())
         currentContact.save(onSaveSuccess, onSaveError);
     else
+    {
         onSaveSuccess(currentContact);
+    }
 }
 
 function cancelLinkContacts() {
@@ -143,6 +197,7 @@ function cancelLinkContacts() {
 }
 
 function unlinkContact() {
+    
     // Unlink this contact from any RWM IDs
     var pn = currentContact.phoneNumbers;
     if (pn == undefined || pn == null)
@@ -152,32 +207,51 @@ function unlinkContact() {
     while (len--) {
         if (pn[len].value.indexOf("#rwmid#") == 0) {
             // Got one
+            removeFromKnownRiders(pn[len].value.substr(7));
             pn.splice(len, 1);
         }
     }
     currentContact.phoneNumbers = pn;
-    if (!simulator)
-        currentContact.save(onSaveSuccess, onSaveError);
+    if (!!isSimulator())
+        currentContact.save(onUnlinkSuccess, onSaveError);
     else
-        onSaveSuccess(currentContact);
+        onUnlinkSuccess(currentContact);
+}
+
+function onUnlinkSuccess(contact) {
+    updateKnowStateOfContactRiderID(contact,false);
+	showMapAfterContact();
 }
 
 function onSaveSuccess(contact) {
 	addToKnownRiders(contactRiderId);
-    reshowLastInfoWindow();
+    updateKnowStateOfContactRiderID(contact,true);
+    //reshowLastInfoWindow();
 	showMapAfterContact();
+}
+
+function updateKnowStateOfContactRiderID(contact, isKnown) {
+    for (var i=0, len=localContacts.length; i<len;i++) {
+        if (localContacts[i].id == contact.id) {
+            localContacts[i].showIcon = isKnown ? "display" : "none";
+            localContacts[i].contact = contact;
+            break;
+        }
+    }
 }
 
 function onSaveError(contactError) {
     alert('error');
 	alert(contactError == null ? "contactError = 0" : contactError);
 	alert(contactError.code);
-	console.log("Error = " + contactError.code);
+	console.log("SaveContact Error = " + contactError.code);
 	showMapAfterContact();
 }
 
 function showMapAfterContact() {
+    HideInfoWindow();
 	currentContact = null;
+    contactRiderId = null;
 	location.href = "#tabstrip-map";
-	refreshMap();
+	RenderRiders();
 }
