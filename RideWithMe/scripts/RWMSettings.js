@@ -1,52 +1,6 @@
 /* User settings */
 
-function getNewId() {
-	if (!(navigator.connection.type == Connection.NONE)) {
-		$.ajax({
-			type: "GET",
-			url: urls.getRiderIdUrl,
-			contentType: "application/json; charset=utf-8",
-			crossDomain: true,
-			dataType: "json",
-			timeout: 15000,
-			success: function (data) {
-                $("#devToolsReplies").html("GetID: " + data);
-				$("#txtRiderId").val(data);
-			},
-			fail: function () {
-				$("#devToolsReplies").html("Error retrieving string");
-			},
-			error: function (xhr, status, error) {
-				$("#devToolsReplies").html("GetId error: [" + error + "]");
-			}
-		});
-	}
-}
 
-function getId() {
-	if (!(navigator.connection.type == Connection.NONE)) {
-		$.ajax({
-			type: "GET",
-			url: urls.getRiderIdUrl,
-			contentType: "application/json; charset=utf-8",
-			crossDomain: true,
-			dataType: "json",
-			timeout: 15000,
-			success: function (data) {
-				$("#txtRiderId").val(data);
-                // why save here?
-				//saveBike();
-			},
-			fail: function () {
-				$("#devToolsReplies").html("Error retrieving string");
-			},
-			error: function (xhr, status, error) {
-				$("#devToolsReplies").html("GetId: " + error);
-			}
-
-		});
-	}
-} 
 
 function getRiderType(rType) {
 	rType = rType.toString().substring(0, 1);
@@ -112,23 +66,37 @@ function saveBike() {
 		s = $("#sel12")[0].checked ? 2 : -1;
 	if (s == -1)
 		s = $("#sel13")[0].checked ? 3 : -1;
-	var bike = {ID: id, RiderId: $("#txtRiderId").val(), Description: $("#txtDescription").val(), Type: t, Style: s};
-	syncListOfBikes(bike);
+    var riderId = $("#txtRiderId").val()
+    if (riderId == "Loading") {
+        return false;    
+    } else {
+    	var bike = {ID: id, RiderId: riderId, Description: $("#txtDescription").val(), Type: t, Style: s};
+    	syncListOfBikes(bike);
+        return true;
+    }
 }
 
 function saveBikeAndFocusList() {
-	saveBike();
-	if (!model.addFirstBike)
-		focusBikeList();
-	else {
-		model.addFirstBike = false;
-		model.current = model.bikersArray[0];
-		location.href = "#tabstrip-map";
-		afterShowMapTab();
-	}
+    if (saveBike()) {
+        if (!model.addFirstBike)
+            focusBikeList();
+        else {
+            model.addFirstBike = false;
+            model.current = model.bikersArray[0];
+            location.href = "#tabstrip-map";
+            afterShowMapTab();
+        }
+    } else {
+      // we didnt save
+      focusBikeList();
+    }
 }
 
 function focusBikeList() {
+    if (model.addFirstBike) {
+        stopRide();
+        model.addFirstBike = false;
+    }
 	location.href = "#tabstrip-bikeslist";
 	applyDictionary();
 	showAllBikesInList();

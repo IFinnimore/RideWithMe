@@ -264,10 +264,11 @@ function ShowInfoWindow(anchor, ctn) {
     if (model.infoBox) { model.infoBox.close(); model.infoBox = undefined; }
     lastInfoWindowMarker = anchor;
     
-    var fullContent = '<div id="infoBox">' + ctn + '</div>';
+    var fullContent = '<div id="infoBox" style="width: 200px">' + ctn + '</div>';
     
     // Create and open the infoWindow
-    model.infoBox = new google.maps.InfoWindow({content: fullContent});
+    //model.infoBox = new google.maps.InfoWindow({content: fullContent});
+    model.infoBox = new InfoBox({content: fullContent, alignBottom: true, pixelOffset: new google.maps.Size(-100,-40) });
 	model.infoBox.open(model.map, anchor);
     
     if (anchor.isKnownRider)
@@ -284,8 +285,9 @@ function HideInfoWindow() {
 }
 
 function reshowLastInfoWindow() {
+    // TODO:  in RefreshMaps, the marker we have here is distroyed. so remap it to the new one if created
     if (lastInfoWindowMarker)
-        ShowInfoWindow(lastInfoWindowMarker, MakeInfoWindowContent(lastInfoWindowMarker));
+        google.maps.event.trigger(lastInfoWindowMarker, "click");
 }
 
 function updateRWM() {
@@ -313,32 +315,6 @@ function updateRWM() {
     // Start another loop if we are running
     if (model.isStarted)
         model.timerUpdateRWM = self.setTimeout( function() { updateRWM(); }, model.refreshTime);
-}
-
-function UpdateRWMServer(riderId, lat, lng, heading, riderType, rideStyle, hasTrouble, showAll, pelSize, successCallback) {
-    if (!(navigator.connection.type == Connection.NONE)) {
-        var typestyle = riderType * 10 + rideStyle;
-        if (hasTrouble)
-            typestyle = -1;
-
-        var myUrl = urls.updateRWMUrl + "riderId=" + riderId + "&lat=" + lat + "&lon=" + lng + "&heading=" + heading + 
-                    "&type=" + typestyle + "&pelSize=" + pelSize + "&showAll=" + showAll + "&ts=" + new Date().getTime();
-
-        $.ajax({
-            type: "GET",
-            url: myUrl,
-            contentType: "application/json; charset=utf-8",
-            crossDomain: true,
-            dataType: "json",
-            timeout: 15000,
-            success: function(data) {
-                UpdateRiderData(data)
-            },
-            error: function (xhr, status, error) {
-                console.log("UpdateRWM" + ':' + error);
-            }
-        });
-    }
 }
 
 function refreshMap() {

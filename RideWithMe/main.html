@@ -20,6 +20,8 @@
 		<script src="scripts/RWMSettings.js"></script>
 		<script src="scripts/RWMContacts.js"></script>
 		<script src="scripts/RWMConnectionAndBattery.js"></script>
+        <script src="scripts/infobox.js"></script>
+        <script src="scripts/RWMServer.js"></script>
 		<script src="scripts/RideWithMe.js"></script>
 	</head>
 	<body>
@@ -79,16 +81,16 @@
 					<ul data-role="listview" data-style="inset" id="selType">
 						<li>
 							<label>
-								<img src="images/Arrow0.png"/>
-								<input name="typeRadio" type="radio" checked="checked" id="sel01" />
-								<span id="lblMountainBike"></span>
+								<img src="images/Arrow1.png"/>
+								<input name="typeRadio" type="radio" checked="checked" id="sel02" />
+								<span id="lblRoad"></span>
 							</label>
 						</li>
-						<li>
+                        <li>
 							<label>
-								<img src="images/Arrow1.png"/>
-								<input name="typeRadio" type="radio" id="sel02" />
-								<span id="lblRoad"></span>
+								<img src="images/Arrow0.png"/>
+								<input name="typeRadio" type="radio" id="sel01" />
+								<span id="lblMountainBike"></span>
 							</label>
 						</li>
 						<li>
@@ -102,29 +104,29 @@
 				</li>
 				<li>
 					<span class="settinglabelspan" id="lblRideStyle"></span>
-					<ul data-role="listview" data-style="inset" id="selStyle">
-						<li>
-							<label>
-								<img src="images/Path0.png"/>
-								<input name="styleRadio" type="radio" checked="checked" id="sel11"/>
-								<span id="lblCompetition"></span>
-							</label>
-						</li>
-						<li>
-							<label>
-								<img src="images/Path1.png"/>
-								<input name="styleRadio" type="radio" id="sel12"/>
-								<span id="lblRecreation"></span>
-							</label>
-						</li>
-						<li>
-							<label>
-								<img src="images/Path2.png"/>
-								<input name="styleRadio" type="radio" id="sel13"/>
-								<span id="lblLeisure"></span>
-							</label>
-						</li>
-					</ul>
+                    <ul data-role="listview" data-style="inset" id="selStyle">
+                        <li>
+                            <label>
+                                <img src="images/Path2.png"/>
+                                <input name="styleRadio" type="radio" id="sel13"/>
+                                <span id="lblLeisure"></span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <img src="images/Path1.png"/>
+                                <input name="styleRadio" type="radio" id="sel12"/>
+                                <span id="lblRecreation"></span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <img src="images/Path0.png"/>
+                                <input name="styleRadio" type="radio" checked="checked" id="sel11"/>
+                                <span id="lblCompetition"></span>
+                            </label>
+                        </li>
+                    </ul>
 				</li>
 			</ul>
 
@@ -225,7 +227,7 @@
 			<div data-role="footer">
 				<div data-role="tabstrip">
 					<!-- leave the innerHTML as is - if removed, multilanguage is not supported -->
-					<a href="#tabstrip-map" data-icon="globe" data-transition="slide: left reverse">id="theMap">Map</a>
+					<a href="#tabstrip-map" data-icon="globe" data-transition="slide: left reverse" id="theMap">Map</a>
 					<a href="#tabstrip-bikeslist" data-transition="slide: left reverse" data-icon="contacts" id="lblBikes">Bikes</a>
 					<!-- <a href="#tabstrip-devtools" data-icon="organize" id="devtools">Dev.Tools</a> -->
 				</div>

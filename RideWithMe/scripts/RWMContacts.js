@@ -212,7 +212,7 @@ function unlinkContact() {
         }
     }
     currentContact.phoneNumbers = pn;
-    if (!!isSimulator())
+    if (!isSimulator())
         currentContact.save(onUnlinkSuccess, onSaveError);
     else
         onUnlinkSuccess(currentContact);

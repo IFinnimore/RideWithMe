@@ -48,6 +48,7 @@ $(document).ready(function() {
 	urls = {
 		getRiderIdUrl: "http://ridewithme.co/services/RideWithMe/RideWithMeService.svc/GetNewRiderId",
 		updateRWMUrl: "http://ridewithme.co/services/RideWithMe/RideWithMeService.svc/UpdateRwm/?",
+        newSessionID: "http://ridewithme.co/services/RideWithMe/RideWithMeService.svc/GetNewSessionID"
 	}
 
 	model = new datacontainer();
@@ -277,7 +278,7 @@ function watchdogBump() {
         model.offTimer = window.setTimeout(function() {
             // AutoStop ride if not mechanics
             stopRide();
-        }, 3600000);
+        }, 900000);
     }
 }
 
