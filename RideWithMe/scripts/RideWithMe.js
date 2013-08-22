@@ -46,9 +46,12 @@ function model() {
 $(document).ready(function() {
     //jQuery.noConflict();
 	urls = {
-		getRiderIdUrl: "http://ridewithme.co/services/RideWithMe/RideWithMeService.svc/GetNewRiderId",
+		getRiderIdUrl: "http://ridewithme.co/services/RideWithMe/RideWithMeService.svc/GetNewRiderId/?",
 		updateRWMUrl: "http://ridewithme.co/services/RideWithMe/RideWithMeService.svc/UpdateRwm/?",
-        newSessionID: "http://ridewithme.co/services/RideWithMe/RideWithMeService.svc/GetNewSessionID"
+        newSessionID: "http://ridewithme.co/services/RideWithMe/KeyService.svc/GetSessionKey"
+        /*getRiderIdUrl: "http://85.124.19.16/IFServices/RideWithMeService.svc/GetNewRiderId/?",
+		updateRWMUrl: "http://85.124.19.16/IFServices/RideWithMeService.svc/UpdateRwm/?",
+        newSessionID: "http://85.124.19.16/IFServices/KeyService.svc/GetSessionKey"*/
 	}
 
 	model = new datacontainer();

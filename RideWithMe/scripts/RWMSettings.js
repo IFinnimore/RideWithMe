@@ -18,7 +18,7 @@ function newBike() {
 
 	if (model.bikersArray == undefined || model.bikersArray.length == 0) {
         $("#txtRiderId").val('Loading');
-		getId();
+		getNewId();
 	}
 	else {
 		$("#txtRiderId").val(model.bikersArray[0].RiderId);
@@ -50,28 +50,30 @@ function editBike(bikeID) {
 }
 
 function saveBike() {
-	var id = $("#txtBikeId").val();
-	if (id == "") {
-		id = getBikeId();
-		$("#txtBikeId").val(id);
-	}
-	var t = $("#sel01")[0].checked ? 1 : -1;
-	if (t == -1)
-		t = $("#sel02")[0].checked ? 2 : -1;
-	if (t == -1)
-		t = $("#sel03")[0].checked ? 3 : -1;
-    
-	var s = $("#sel11")[0].checked ? 1 : -1;
-	if (s == -1)
-		s = $("#sel12")[0].checked ? 2 : -1;
-	if (s == -1)
-		s = $("#sel13")[0].checked ? 3 : -1;
     var riderId = $("#txtRiderId").val()
     if (riderId == "Loading") {
         return false;    
-    } else {
-    	var bike = {ID: id, RiderId: riderId, Description: $("#txtDescription").val(), Type: t, Style: s};
-    	syncListOfBikes(bike);
+    }
+    else {
+        var id = $("#txtBikeId").val();
+        if (id == "") {
+            id = getBikeId();
+            $("#txtBikeId").val(id);
+        }
+        var t = $("#sel01")[0].checked ? 1 : -1;
+        if (t == -1)
+            t = $("#sel02")[0].checked ? 2 : -1;
+        if (t == -1)
+            t = $("#sel03")[0].checked ? 3 : -1;
+    
+        var s = $("#sel11")[0].checked ? 1 : -1;
+        if (s == -1)
+            s = $("#sel12")[0].checked ? 2 : -1;
+        if (s == -1)
+            s = $("#sel13")[0].checked ? 3 : -1;
+
+        var bike = {ID: id, RiderId: riderId, Description: $("#txtDescription").val(), Type: t, Style: s};
+        syncListOfBikes(bike);
         return true;
     }
 }

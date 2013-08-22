@@ -2,7 +2,7 @@ var cachedURL = "";
 var callback = null;
 
 var sessionID = "0"
-var AppID = "597A6485-F002-43F8-84A7-282779A34C26"
+var AppID = "AC867003-5800-44AC-BDFA-1F46A34D0298"
 
 function handleAjaxError(xhr, status, error) {
     if (xhr && xhr.status == 401) {
@@ -14,18 +14,20 @@ function handleAjaxError(xhr, status, error) {
                 contentType: "application/json; charset=utf-8",
                 crossDomain: true,
                 dataType: "json",
-                data: JSON.stringify(AppID),
+                data: JSON.stringify({ "AppId": AppID }),
                 timeout: 15000,
                 success: function (data) {
                     // We got a new sessionID
-                    sessionID = data.sessionID;
+                    sessionID = data;
                 
                     // redo the original call
                     if (callback)
                         callback();
                 },
-                fail: function () {
+                error: function (xhr, status, error) {
                     // Failed again
+                    // TODO: Handle second failure
+                    alert("handleAjaxError: " + error);
                 }
             });
         }
@@ -36,40 +38,16 @@ function handleAjaxError(xhr, status, error) {
 
 function getNewId() {
 	if (!(navigator.connection.type == Connection.NONE)) {
-        
+
         // TODO: add session ID
-        cachedURL = urls.getRiderIdUrl;
+        if (cachedURL == "")
+            cachedURL = urls.getRiderIdUrl;
+        
         callback = getNewId;
         
 		$.ajax({
 			type: "GET",
-			url: urls.getRiderIdUrl,
-			contentType: "application/json; charset=utf-8",
-			crossDomain: true,
-			dataType: "json",
-			timeout: 15000,
-			success: function (data) {
-                $("#devToolsReplies").html("GetID: " + data);
-				$("#txtRiderId").val(data);
-			},
-			fail: function () {
-				$("#devToolsReplies").html("Error retrieving string");
-			},
-			error: handleAjaxError
-		});
-	}
-}
-
-function getId() {
-	if (!(navigator.connection.type == Connection.NONE)) {
-
-        // TODO: add session ID
-        cachedURL = urls.getRiderIdUrl;
-        callback = getId;
-        
-		$.ajax({
-			type: "GET",
-			url: urls.getRiderIdUrl,
+			url: cachedURL + "&sessionKey=" + sessionID,
 			contentType: "application/json; charset=utf-8",
 			crossDomain: true,
 			dataType: "json",
@@ -78,9 +56,6 @@ function getId() {
                 cachedURL = "";
                 callback = null;
 				$("#txtRiderId").val(data);
-			},
-			fail: function () {
-				$("#devToolsReplies").html("Error retrieving string");
 			},
 			error: handleAjaxError
 		});
@@ -97,13 +72,13 @@ function UpdateRWMServer(riderId, lat, lng, heading, riderType, rideStyle, hasTr
                     "&type=" + typestyle + "&pelSize=" + pelSize + "&showAll=" + showAll + "&ts=" + new Date().getTime();
         
         if (cachedURL != "")
-            myUrl = passedURL;
+            myUrl = cachedURL;
         else
             cachedURL= myUrl;
         callback= UpdateRWMServer;
         
-        // TODO: add session ID
-        myUrl += "" // + sessionID
+        // Add session ID
+        myUrl += "&sessionKey=" + sessionID;
         
         $.ajax({
             type: "GET",
@@ -121,3 +96,4 @@ function UpdateRWMServer(riderId, lat, lng, heading, riderType, rideStyle, hasTr
         });
     }
 }
+
