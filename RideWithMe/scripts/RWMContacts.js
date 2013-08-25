@@ -47,11 +47,17 @@ function refreshContacts() {
 	options.multiple = true;
 	var fields = ["name", "displayName", "phoneNumbers", "id"];
     
-    if (!isSimulator()) {
-        // lookup contacts
-        navigator.contacts.find(fields, onRefreshContactSuccess, onFindContactError, options);
-    } else {
-        onRefreshContactSuccess(contactsSimulatorData());
+    try {
+        if (!isSimulator()) {
+            // lookup contacts
+            navigator.contacts.find(fields, onRefreshContactSuccess, onFindContactError, options);
+        }
+        else {
+            onRefreshContactSuccess(contactsSimulatorData());
+        } 
+    }
+    catch (err) {
+        alert("refreshContacts: " + err.message)
     }
 }
 
@@ -76,16 +82,27 @@ function onFindContactError(error) {
 function onRefreshContactSuccess(contacts) {
     localContacts = [];
     // Save contacts into local array
-    for (var i = 0; i < contacts.length; i++) {
-        localContacts[i] = {letter:contacts[i].name.familyName.substr(0, 1), id: contacts[i].id, showIcon: "none", name2: contacts[i].name.formatted, contact: contacts[i]};
-        if (contacts[i].phoneNumbers != null) {
-            for (var j = 0; j < contacts[i].phoneNumbers.length; j++) {
-                if (contacts[i].phoneNumbers[j].value.indexOf("#rwmid#") == 0) {
-                    localContacts[i].showIcon = "display";
-                    addToKnownRiders(contacts[i].phoneNumbers[j].value.substr(7)) // add this riderID to the KnownRiders lookup
+    try {
+        for (var i = 0; i < contacts.length; i++) {
+            var familyName = contacts[i].name.familyName;
+            if (familyName == null)
+                familyName = contacts[i].name.formatted;
+            
+            localContacts[i] = {letter:familyName.substr(0, 1), id: contacts[i].id, showIcon: "none", name2: contacts[i].name.formatted, contact: contacts[i]};
+            if (contacts[i].phoneNumbers != null) {
+                for (var j = 0; j < contacts[i].phoneNumbers.length; j++) {
+                    if (contacts[i].phoneNumbers[j].value.indexOf("#rwmid#") == 0) {
+                        localContacts[i].showIcon = "display";
+                        addToKnownRiders(contacts[i].phoneNumbers[j].value.substr(7)) // add this riderID to the KnownRiders lookup
+                    }
                 }
             }
         }
+    }
+    catch (err) {
+        var txt = "onRefreshContactSuccess: " + err.message;
+        txt = txt + "\nfamilyName: " + familyName + "\n" + JSON.stringify(contacts[i]);
+        alert(txt);
     }
 }
 
@@ -182,11 +199,15 @@ function saveLinkContacts() {
         pn = [];
     pn.push(new ContactField('other', '#rwmid#' + contactRiderId, false));
     currentContact.phoneNumbers = pn;
-    if (!isSimulator())
-        currentContact.save(onSaveSuccess, onSaveError);
-    else
-    {
-        onSaveSuccess(currentContact);
+    try {
+        if (!isSimulator())
+            currentContact.save(onSaveSuccess, onSaveError);
+        else {
+            onSaveSuccess(currentContact);
+        }
+    }
+    catch (err) {
+        alert("saveLinkContacts: " + err.message)
     }
 }
 

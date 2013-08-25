@@ -87,6 +87,10 @@ function saveBikeAndFocusList() {
             model.current = model.bikersArray[0];
             location.href = "#tabstrip-map";
             afterShowMapTab();
+            // Start the UpdateRWM timer by updating RWM in 2 seconds (allows time for initial GPS location)
+            model.timerUpdateRWM = window.setTimeout(function() {
+                updateRWM();
+            }, 2000);
         }
     } else {
       // we didnt save
@@ -143,10 +147,15 @@ function loadListOfBikes() {
 function showAllBikesInBikeSelection() {
 	var byx = $("#selBikes").data("kendoMobileListView");
 	if (byx != undefined) {
-		byx.refresh();
 		byx.dataSource.read();
+        byx.refresh();
 		return;
-	}
+	} else {
+        initBikeSelectView();
+    }
+}
+
+function initBikeSelectView() {
     $("#selBikes").kendoMobileListView({
 		dataSource: kendo.data.DataSource.create({data: model.bikersArray}),
 		template: $("#choosebikeTemplate").html(),
@@ -158,9 +167,10 @@ function showAllBikesInBikeSelection() {
 					model.current = model.bikersArray[i];
 				}
 			}
+            model.timerUpdateRWM = window.setTimeout( function() { updateRWM(); }, 2000);
 			location.href = "#tabstrip-map";
 		}
-	});
+	});    
 }
 
 var IDToDel = "";
@@ -190,14 +200,20 @@ function initBikeListView() {
                     // Show this button after hiding all others
                     $(".btnFinalDelete").fadeOut(0);
                     dButn.style.display="";
-                    IDToDel = bItem.dataItem.ID;
+                    if (bItem && bItem.dataItem)
+                        IDToDel = bItem.dataItem.ID;
+                    else
+                        IDToDel = bItem.item[0].ID;
                 }
 		    } else {
-		        // We are not in list edit mode
-		        editBike(bItem.dataItem.ID);
-				location.href = "#tabstrip-bikes";
-				applyDictionary();
-				return;
+                // We are not in list edit mode
+                if (bItem && bItem.dataItem)
+                    editBike(bItem.dataItem.ID);
+                else
+                    editBike(bItem.item[0].ID);
+                location.href = "#tabstrip-bikes";
+                applyDictionary();
+                return;
 		    }
 		}
 	});
@@ -228,7 +244,11 @@ function deleteBike() {
 }
 
 function btnEditBike() {
+    if (!model.bikersArray.length) {
+        model.bikeListEditMode = false;
+    } else {
 	model.bikeListEditMode = !model.bikeListEditMode;
+        }
 	if (model.bikeListEditMode) {
 		editBikeList();
 	}
@@ -238,12 +258,12 @@ function btnEditBike() {
 }
 
 function editBikeList() {
-	$("#btnEditBikeList .km-text").html("Done");
+	$("#btnEditBikeList .km-text").html(model.dictionary.done);
 	$(".btnEditDelBikeInList").fadeIn(300);
 }
 
 function editBikeListEnd() {
-	$("#btnEditBikeList .km-text").html("Edit");
+	$("#btnEditBikeList .km-text").html(model.dictionary.edit);
 	$(".btnEditDelBikeInList").fadeOut(100);
     $(".btnFinalDelete").fadeOut(100);
 }

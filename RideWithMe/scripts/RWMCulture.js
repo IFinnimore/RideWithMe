@@ -130,7 +130,10 @@ function applyDictionary(){
     $("#lblRecreation").html(md.recreation);
     $("#lblLeisure").html(md.leisure);
 	$(".dataConnection").html(md.dataConnection);
-    $("#lblRunStop").html(md.runTxt);
+    if (model.isStarted)
+        $("#lblRunStop").html(md.stopTxt);
+    else
+        $("#lblRunStop").html(md.runTxt);
     $("#lblTrouble").html(md.trouble);
     $(".lowBattery").html(md.lowPower);
     $("#pushOpen").prop("value",md.pushOpen);

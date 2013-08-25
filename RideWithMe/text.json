@@ -49,7 +49,8 @@
 		{ "pushOpen" : "button short label, indicating to press here to open the start/stop overlay"},
         { "distance" : "label of the distance in km from you to the rider in a straight line"},
         { "showRider" : "button to center the map on the selected rider"},
-        { "showContact" : "button: Show the contact info"}
+        { "showContact" : "button: Show the contact info"},
+        { "unlinkContact" : "button:  Disconnect the contact from the rider"}
    ],
     "runTxt":[
       "Start",

@@ -1,8 +1,8 @@
 var cachedURL = "";
 var callback = null;
 
-var sessionID = "0"
-var AppID = "AC867003-5800-44AC-BDFA-1F46A34D0298"
+var sessionID = "0";
+var AppID = "AC867003-5800-44AC-BDFA-1F46A34D0298";
 
 function handleAjaxError(xhr, status, error) {
     if (xhr && xhr.status == 401) {
@@ -57,7 +57,8 @@ function getNewId() {
                 callback = null;
 				$("#txtRiderId").val(data);
 			},
-			error: handleAjaxError
+			error: handleAjaxError,
+			fail: handleAjaxError
 		});
 	}
 } 

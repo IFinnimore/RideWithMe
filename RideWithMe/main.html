@@ -46,7 +46,7 @@
                     </span>
     			</p>
                 <div id="pullout">
-                    <input id="pushOpen" type="button" value="drücken" onclick="overlayStartStop()" />
+                    <input id="pushOpen" type="button" value="push" onclick="overlayStartStop()" />
                     <!-- <button style="height: 100px; width: 25px"><img src="images/pull.png" onclick="overlayStartStop()" style="left: 0px" /></button> -->
                 </div>
                 <img id="stopLightStop" class="stopLight" src="images/stoplightStop.png" />
@@ -108,7 +108,7 @@
                         <li>
                             <label>
                                 <img src="images/Path2.png"/>
-                                <input name="styleRadio" type="radio" id="sel13"/>
+                                <input name="styleRadio" type="radio" checked="checked" id="sel13"/>
                                 <span id="lblLeisure"></span>
                             </label>
                         </li>
@@ -122,7 +122,7 @@
                         <li>
                             <label>
                                 <img src="images/Path0.png"/>
-                                <input name="styleRadio" type="radio" checked="checked" id="sel11"/>
+                                <input name="styleRadio" type="radio" id="sel11"/>
                                 <span id="lblCompetition"></span>
                             </label>
                         </li>
@@ -134,7 +134,7 @@
 		</div>
 
         <!--choose bike-->
-        <div data-role="view" id="tabstrip-choosebike">
+        <div data-role="view" id="tabstrip-choosebike" data-init="initContactsList">
 			<header data-role="header">
 				<div data-role="navbar">
 					<span data-role="view-title" id="lblChooseBikeTitle">Choose Bike Title</span>
@@ -157,13 +157,13 @@
 			</header>
 			<ul data-role="listview" data-style="inset" id="lstBikes"></ul>
 			<script id="bikeEditTemplate" type="text/x-kendo-template">
-				<a id="btnDelete" class="btnFinalDelete" data-role="button" onclick="deleteBike()" style="Display: none; background-color: red">Delete</a>
+				<a id="btnDelete" class="btnFinalDelete" data-role="button" onclick="deleteBike()" style="display: none; background-color: red">Delete</a>
                 ${Description}<a id="btnListBikeEdit" data-role="detailbutton" data-style="detaildisclose"></a>
 				<a id="btnListBikeDelete" class="btnEditDelBikeInList" data-role="detailbutton" data-style="rowdelete"></a>
 			</script>
 		</div>
 
-        <!-- contactlist -->>
+        <!-- contactlist -->
 		<div data-role="view" id="tabstrip-contactlist" data-title="Create/Add To Contacts" data-init="initContactsList" data-show="refreshContactList">
 			<ul data-role="listview" data-style="inset" id="selContacts" data-style="inset"></ul>
 			<script id="contactsTemplate" type="text/x-kendo-template">
@@ -235,7 +235,7 @@
 		</div>
 
 		<script>
-			var app = new kendo.mobile.Application(document.body, { transition: "slide:left", layout: "mobile-tabstrip" });
+    		var app = new kendo.mobile.Application(document.body, { transition: "slide:left", layout: "mobile-tabstrip" });            
 		</script>
 	</body>
 </html>

@@ -199,7 +199,7 @@ function startRide() {
         watchdogBump();
 
         // Start the UpdateRWM timer by updating RWM in 2 seconds (allows time for initial GPS location)
-        model.timerUpdateRWM = self.setTimeout( function() { updateRWM(); }, 2000);
+        model.timerUpdateRWM = window.setTimeout( function() { updateRWM(); }, 2000);
         
         // Show we are running
         displayRunState(true);

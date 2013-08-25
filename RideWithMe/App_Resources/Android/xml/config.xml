@@ -5,6 +5,7 @@
     <access origin="*.google.com" />
     <access origin="*.gstatic.com" />
     <access origin="*.googleapis.com" />
+    <access origin="themes.googleusercontent.com" />
     <access origin="*.ridewithme.co" />
 
     <content src="index.html" />
