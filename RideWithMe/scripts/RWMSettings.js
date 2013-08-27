@@ -219,11 +219,12 @@ function initBikeListView() {
 	});
 }
 function showAllBikesInList() {
+
 	var byx = $("#lstBikes").data("kendoMobileListView");
 	if (byx != undefined) {
-		byx.refresh();
 		byx.dataSource.read();
-		return;
+		byx.refresh();
+        return;
 	}
     initBikeListView();
 }
@@ -244,8 +245,9 @@ function deleteBike() {
 }
 
 function btnEditBike() {
-    if (!model.bikersArray.length) {
+    if (!(model.bikersArray.length>1)) {
         model.bikeListEditMode = false;
+        editBikeListEnd();
     } else {
 	model.bikeListEditMode = !model.bikeListEditMode;
         }
@@ -266,6 +268,18 @@ function editBikeListEnd() {
 	$("#btnEditBikeList .km-text").html(model.dictionary.edit);
 	$(".btnEditDelBikeInList").fadeOut(100);
     $(".btnFinalDelete").fadeOut(100);
+    showHideEditBtn();
+}
+
+function showHideEditBtn() {
+    if (model.bikersArray.length > 1) {
+        // Show the edit button
+        $('#btnEditBikeList').show();
+    }
+    else {
+        // Hide the edit button
+        $('#btnEditBikeList').hide();
+    }
 }
 
 function AfterTabstripBikes() {
@@ -274,6 +288,9 @@ function AfterTabstripBikes() {
     
     // Make sure we are not in edit mode
     if (model.bikeListEditMode) btnEditBike();
+    
+    showHideEditBtn();
+
 }
 
 /* Developer settings */

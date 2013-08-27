@@ -1,4 +1,5 @@
 var urls;
+var app;
 
 function datacontainer() {
 	this.map;
@@ -241,7 +242,7 @@ function stopRide() {
 		var typestyle = model.current.Type * 10 + model.current.Style;
 		if (model.hasTrouble)
 			typestyle = -1;
-		var myUrl = urls.updateRWMUrl + "riderId=" + model.current.RiderId + "&lat=0&lon=0&heading=0&type=" + typestyle + "&pelSize=10&showAll=false&ts=" + new Date().getTime();
+		var myUrl = urls.updateRWMUrl + "riderId=" + model.current.RiderId + "&lat=0.0&lon=0.0&heading=0&type=" + typestyle + "&pelSize=10&showAll=false&ts=" + new Date().getTime();
 		$.ajax({
 			type: "GET",
 			url: myUrl,
