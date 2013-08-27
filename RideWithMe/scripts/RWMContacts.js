@@ -11,17 +11,32 @@ var isNoContacts = false;
 
 function contactsSimulatorData() {
     // sim data
-        var contacts = [];
-        contacts[0] = {id: "123", displayName: "Melanie Jaros", name: {formatted: "Melanie Jaros", familyName: "Jaros" }, phoneNumbers: null};
-    	contacts[1] = {id: "223", displayName: "Gerhard Jaros", name: {formatted: "Gerhard Jaros", familyName: "Jaros"},  phoneNumbers: null};
-    	contacts[2] = {id: "323", displayName: "Mario Fernsebner", name: {formatted: "Mario Fernsebner", familyName: "Fernsebner"}, phoneNumbers: null};
-    	contacts[3] = {id: "423", displayName: "Markus Egger", name: {formatted: "Markus Egger", familyName: "Egger"}, phoneNumbers: null};
-    	contacts[4] = {id: "523", displayName: "Georg Segl", name: {formatted: "Georg Segl", familyName: "Segl"}, phoneNumbers: null};
-    	contacts[5] = {id: "623", displayName: "Roman Innerhofer", name: {formatted: "Roman Innerhofer", familyName: "Innerhofer"}, phoneNumbers: null};
-    	contacts[6] = {id: "723", displayName: "Ian Finnimore", name: {formatted: "Ian Finnimore", familyName: "Finnimore"}
-                , phoneNumbers: [{type: "home", value: "+386 30 313 933", pref: false}, {type: "other", value: "#rwmid#123456", pref: false}]};
+    var contacts = [];
+    var i = 0;
+    contacts[i++] = {id: "123", displayName: "Melanie Jaros", name: {formatted: "Melanie Jaros", familyName: "Jaros" }, phoneNumbers: null};
+    contacts[i++] = {id: "223", displayName: "Gerhard Jaros", name: {formatted: "Gerhard Jaros", familyName: "Jaros"},  phoneNumbers: null};
+    contacts[i++] = {id: "323", displayName: "Mario Fernsebner", name: {formatted: "Mario Fernsebner", familyName: "Fernsebner"}, phoneNumbers: null};
+    contacts[i++] = {id: "423", displayName: "Markus Egger", name: {formatted: "Markus Egger", familyName: "Egger"}, phoneNumbers: null};
+    contacts[i++] = {id: "523", displayName: "Georg Segl", name: {formatted: "Georg Segl", familyName: "Segl"}, phoneNumbers: null};
+    contacts[i++] = {id: "623", displayName: "Roman Innerhofer", name: {formatted: "Roman Innerhofer", familyName: "Innerhofer"}, phoneNumbers: null};
+    contacts[i++] = {
+        id: "723", displayName: "Ian Finnimore", name: {formatted: "Ian Finnimore", familyName: "Finnimore"}
+        , phoneNumbers: [{type: "home", value: "+386 30 313 933", pref: false}, {type: "other", value: "#rwmid#123456", pref: false}]
+    };
+
+    // Double set to test paging
+    contacts[i++] = {id: "1231", displayName: "Melanie Jaros", name: {formatted: "Melanie Jaros", familyName: "Jaros" }, phoneNumbers: null};
+    contacts[i++] = {id: "2231", displayName: "Gerhard Jaros", name: {formatted: "Gerhard Jaros", familyName: "Jaros"},  phoneNumbers: null};
+    contacts[i++] = {id: "3231", displayName: "Mario Fernsebner", name: {formatted: "Mario Fernsebner", familyName: "Fernsebner"}, phoneNumbers: null};
+    contacts[i++] = {id: "4231", displayName: "Markus Egger", name: {formatted: "Markus Egger", familyName: "Egger"}, phoneNumbers: null};
+    contacts[i++] = {id: "5231", displayName: "Georg Segl", name: {formatted: "Georg Segl", familyName: "Segl"}, phoneNumbers: null};
+    contacts[i++] = {id: "6231", displayName: "Roman Innerhofer", name: {formatted: "Roman Innerhofer", familyName: "Innerhofer"}, phoneNumbers: null};
+    contacts[i++] = {
+        id: "723", displayName: "Ian Finnimore", name: {formatted: "Ian Finnimore", familyName: "Finnimore"}
+        , phoneNumbers: [{type: "home", value: "+386 30 313 933", pref: false}, {type: "other", value: "#rwmid#123456", pref: false}]
+    };
     
-        return contacts;
+    return contacts;
 }
 
 
@@ -88,7 +103,7 @@ function onRefreshContactSuccess(contacts) {
             if (familyName == null)
                 familyName = contacts[i].name.formatted;
             
-            localContacts[i] = {letter:familyName.substr(0, 1), id: contacts[i].id, showIcon: "none", name2: contacts[i].name.formatted, contact: contacts[i]};
+            localContacts[i] = {letter:familyName.trim().substr(0, 1).toUpperCase(), id: contacts[i].id, showIcon: "none", name2: contacts[i].name.formatted, contact: contacts[i]};
             if (contacts[i].phoneNumbers != null) {
                 for (var j = 0; j < contacts[i].phoneNumbers.length; j++) {
                     if (contacts[i].phoneNumbers[j].value.indexOf("#rwmid#") == 0) {
@@ -98,6 +113,12 @@ function onRefreshContactSuccess(contacts) {
                 }
             }
         }
+        
+        // Sort the array
+        localContacts.sort( function(current,next) {
+            return current.letter == next.letter ? (current.name2 > next.name2 ? 1: -1) : (current.letter > next.letter ? 1: -1);
+        });
+        return;
     }
     catch (err) {
         var txt = "onRefreshContactSuccess: " + err.message;
@@ -109,17 +130,29 @@ function onRefreshContactSuccess(contacts) {
 function refreshContactList(){
     var listview = $("#selContacts").data("kendoMobileListView");
     if (listview) {
-        listview.refresh();
+        app.showLoading();
         listview.dataSource.read();
+        listview.refresh();
+        app.hideLoading();
     }
 }
 
 function initContactsList() {
+    app.showLoading();
     $("#selContacts").kendoMobileListView({
         filterable:{field: "name2", operator:"contains"},
-        sort: {field: "name2"},
+        //sort: {field: "name2"},
         type: "group",
-        dataSource: kendo.data.DataSource.create({data: localContacts, group: "letter"}),
+        dataSource: kendo.data.DataSource.create(
+            {
+                data: localContacts, 
+                group: "letter",
+                page: 1,
+                pageSize: 30,
+                serverSorting: true
+            }
+        ),
+        endlessScroll: true, 
         template: $("#contactsTemplate").html(),
         click: function(item) {
             if (item && item.dataItem) {
@@ -127,6 +160,7 @@ function initContactsList() {
             }
         }
     });
+    app.hideLoading();
 }
 
 function showContactDetailsClickMarker(riderID) {

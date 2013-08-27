@@ -73,14 +73,18 @@ function getNewId() {
 	}
 } 
 
+var afterSuccess;
 function UpdateRWMServer(riderId, lat, lng, heading, riderType, rideStyle, hasTrouble, showAll, pelSize, successCallback) {
     if (!(navigator.connection.type == Connection.NONE)) {
 
         var myUrl = ""
-        
+                
         if (cachedURL != "") {
             myUrl = cachedURL;
         } else {
+            // save the callback only if not cachedURL
+            afterSuccess = successCallback;
+
             var typestyle = riderType * 10 + rideStyle;
             if (hasTrouble)
                 typestyle = -1;
@@ -113,7 +117,8 @@ function UpdateRWMServer(riderId, lat, lng, heading, riderType, rideStyle, hasTr
             success: function(data) {
                 cachedURL = "";
                 callback = null;
-                UpdateRiderData(data);
+                if (afterSuccess)
+                    afterSuccess(data);
             },
             fail: handleAjaxError,
             error: handleAjaxError

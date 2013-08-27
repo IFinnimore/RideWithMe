@@ -113,7 +113,7 @@ function RenderRiders() {
 			var pos = new google.maps.LatLng(model.riderData[i].Lat, model.riderData[i].Lon);
 			
             // Calc distance to me
-            var distance = distanceMe.distanceTo(new LatLon(pos.lat(), pos.lng()));
+            var distance = distanceMe.distanceTo(new LatLon(pos.lat(), pos.lng()), 1);
             
 			// Create the marker and path on screen, or marker if offscreen
 			if (model.bounds.contains(pos)) {
@@ -392,6 +392,7 @@ geolocationApp.prototype = {
 				zoomControl: false
 			});
 			google.maps.event.addListener(model.map, 'idle', BoundsChanged);
+            google.maps.event.addListener(model.map, 'click', HideInfoWindow);
 		}
         
         var fColor = model.current.Type == 1 ? "#DD88EE" : model.current.Type == 2 ? "#ffff19" : model.current.Type == 3 ? "#194fff" : "#ffffff" ;
@@ -438,17 +439,21 @@ geolocationApp.prototype = {
             model.currentPositionMarker.setIcon(model.markerIcon);
         }
         
-        var weMoved = Math.abs(Math.floor(model.prevLat * 10000) - Math.floor(position.coords.latitude * 10000)) 
-                    + Math.abs(Math.floor(model.prevLon * 10000) - Math.floor(position.coords.longitude * 10000));
         
+        var weMoved = true;
+        
+        var myLoc = new LatLon(position.coords.latitude, position.coords.longitude);
+        if (model.prevLoc != null) {
+            var distance = myLoc.distanceTo(model.prevLoc) * 1000.0; // Movement distance in meters
+            weMoved =  distance > position.coords.accuracy ? true : false;  // The movement was greater than the accuracy figure of the object
+        }
 		if (weMoved) {
             if (!model.panOff) {
                 model.map.panTo(curPos);
             }
             
             // Save the previous position
-			model.prevLat = position.coords.latitude;
-			model.prevLon = position.coords.longitude;
+			model.prevLoc = myLoc;
             
             // re-initialize the off-Timer
             watchdogBump();			

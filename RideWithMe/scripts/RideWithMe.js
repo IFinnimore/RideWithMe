@@ -7,8 +7,7 @@ function datacontainer() {
 	this.currentPositionMarker;
 	this.current;
 	this.geoLoc;
-	this.prevLat;
-	this.prevLon;
+	this.prevLoc;
 	this.markerIcon;
 	this.timer; // Refresh Position Timer.  Always running
     this.timerUpdateRWM; // Runs only when user presses start
@@ -84,8 +83,7 @@ $(document).ready(function() {
     };
     this.panOff = false;
     
-    model.prevLat = 0;
-    model.prevLon = 0;
+    model.prevLoc = null;
 
 	model.offTimer = 0; // handle for timer that fires to automatically stop app
 	model.timer = 0; // handle for timer that updates position;
@@ -237,21 +235,8 @@ function stopRide() {
     // Clear out the old data.  If we dont share, we don't see others.
     model.riderData = []; // Data back from RWM web sercie
     
-    // Make AJAX call if we are connected
-	if (!(navigator.connection.type == Connection.NONE)) {
-		var typestyle = model.current.Type * 10 + model.current.Style;
-		if (model.hasTrouble)
-			typestyle = -1;
-		var myUrl = urls.updateRWMUrl + "riderId=" + model.current.RiderId + "&lat=0.0&lon=0.0&heading=0&type=" + typestyle + "&pelSize=10&showAll=false&ts=" + new Date().getTime();
-		$.ajax({
-			type: "GET",
-			url: myUrl,
-			contentType: "application/json; charset=utf-8",
-			crossDomain: true,
-			dataType: "json",
-			timeout: 15000
-		});
-	}
+    // Update the position to 0,0 (forces them off the map);
+    UpdateRWMServer(model.current.RiderId, 0.0, 0.0, 0, model.current.Type, model.current.Style, model.hasTrouble, false, 10, null);
     
     // clear the "current" rider
     model.current = {
