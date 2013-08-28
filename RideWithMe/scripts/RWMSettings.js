@@ -147,8 +147,8 @@ function loadListOfBikes() {
 function showAllBikesInBikeSelection() {
 	var byx = $("#selBikes").data("kendoMobileListView");
 	if (byx != undefined) {
-		byx.dataSource.read();
         byx.refresh();
+        byx.dataSource.read();
 		return;
 	} else {
         initBikeSelectView();
@@ -156,6 +156,8 @@ function showAllBikesInBikeSelection() {
 }
 
 function initBikeSelectView() {
+    //console.log('initBikeSelectView');
+    
     $("#selBikes").kendoMobileListView({
 		dataSource: kendo.data.DataSource.create({data: model.bikersArray}),
 		template: $("#choosebikeTemplate").html(),
@@ -175,72 +177,92 @@ function initBikeSelectView() {
 
 var IDToDel = "";
 function initBikeListView() {
-	$("#lstBikes").kendoMobileListView({
+    //console.log('initBikeListView');
+    
+    $("#lstBikes").kendoMobileListView({
 		dataSource: kendo.data.DataSource.create({data: model.bikersArray}),
 		template: $("#bikeEditTemplate").html(),
-		click: function(bItem) {
-		    if (model.bikeListEditMode) {
-		        // we are editing
-				// final delete button lookup
-                var bCtx = bItem.item.context.children;
-                var dButn;
-                for (var i=0; i< bCtx.length; i++) {
-                    if (bCtx[i].id=="btnDelete") {
-                        dButn = bCtx[i];
-                        break;
+        click: function(bItem) {
+            try {
+                if (model.bikeListEditMode) {
+                    // we are editing
+                    // final delete button lookup
+                    var bCtx = bItem.item.context.children;
+                    var dButn;
+                    for (var i = 0; i < bCtx.length; i++) {
+                        if (bCtx[i].id == "btnDelete") {
+                            dButn = bCtx[i];
+                            break;
+                        }
+                    }
+                
+                    // Check if the button is already visible.  If so, hide it, otherwise prepare for delete
+                    if (dButn.style.display == "") {
+                        // Hide this button
+                        dButn.style.display = "none";
+                        deleteBike();
+                    }
+                    else {
+                        // Show this button after hiding all others
+                        $(".btnFinalDelete").fadeOut(0);
+                        dButn.style.display = "";
+                        if (bItem && bItem.dataItem)
+                            IDToDel = bItem.dataItem.ID;
+                        else
+                            IDToDel = bItem.item[0].ID;
                     }
                 }
-                
-                // Check if the button is already visible.  If so, hide it, otherwise prepare for delete
-                if (dButn.style.display=="") {
-                    // Hide this button
-                    dButn.style.display="none";
-                }
                 else {
-                    // Show this button after hiding all others
-                    $(".btnFinalDelete").fadeOut(0);
-                    dButn.style.display="";
+                    // We are not in list edit mode
                     if (bItem && bItem.dataItem)
-                        IDToDel = bItem.dataItem.ID;
+                        editBike(bItem.dataItem.ID);
                     else
-                        IDToDel = bItem.item[0].ID;
+                        editBike(bItem.item[0].ID);
+                    location.href = "#tabstrip-bikes";
+                    applyDictionary();
+                    return;
                 }
-		    } else {
-                // We are not in list edit mode
-                if (bItem && bItem.dataItem)
-                    editBike(bItem.dataItem.ID);
-                else
-                    editBike(bItem.item[0].ID);
-                location.href = "#tabstrip-bikes";
-                applyDictionary();
-                return;
-		    }
-		}
-	});
+            }
+            catch (err) {
+                console.log('bikeEditTemplate error:' + err)
+            }
+        }
+
+    });
 }
 function showAllBikesInList() {
 
 	var byx = $("#lstBikes").data("kendoMobileListView");
 	if (byx != undefined) {
-		byx.dataSource.read();
 		byx.refresh();
+        byx.dataSource.read();
         return;
 	}
     initBikeListView();
 }
 
 function deleteBike() {
-    if (IDToDel == "") return;
+    try {
+        //console.log("deleteBike");
+        if (IDToDel == "") {
+            console.log("No IDToDel?");
+            return;
+        }
     
-     for (var i = 0; i < model.bikersArray.length; i++) {
-    	if (model.bikersArray[i].ID == IDToDel) {
-    		model.bikersArray.splice(i, 1);
-    		localStorage.setItem("Bikes", JSON.stringify(model.bikersArray));
-    		showAllBikesInBikeSelection();
-    		btnEditBike();
-    		focusBikeList();
-    		return;
-    	}
+        for (var i = 0; i < model.bikersArray.length; i++) {
+            if (model.bikersArray[i].ID == IDToDel) {
+                IDToDel = "";
+                model.bikersArray.splice(i, 1);
+                localStorage.setItem("Bikes", JSON.stringify(model.bikersArray));
+                showAllBikesInBikeSelection();
+                btnEditBike();
+                focusBikeList();
+                return;
+            }
+        }
+    }
+    catch (err) {
+        console.log('deleteBike: ' + err);
     }
 }
 

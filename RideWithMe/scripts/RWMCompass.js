@@ -20,7 +20,7 @@ function onCompassSuccess(heading) {
 }
 
 function onCompassError(compassError) {
-	alert("Compass error: " + compassError.code);
+	// Do nothing on error
 }
 
 function stopCompass() {

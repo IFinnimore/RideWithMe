@@ -108,7 +108,6 @@ document.addEventListener("deviceready", onDeviceReady, false);
 
 function onDeviceReady() {
     // setup dictionary and bikes
-    //alert("documentready event");
     setupLanguage(); // RMWCulture.js
 	loadListOfBikes();
 	refreshKnownRiders();
@@ -181,7 +180,7 @@ function startRide() {
 				break;
 			default:
 				// more than one bike - choose bike before ride starts
-				loadListOfBikes();
+                loadListOfBikes();
 				location.href = "#tabstrip-choosebike";
 				break;
 		}

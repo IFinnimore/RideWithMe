@@ -72,7 +72,7 @@ function refreshContacts() {
         } 
     }
     catch (err) {
-        alert("refreshContacts: " + err.message)
+        console.log("refreshContacts: " + err.message)
     }
 }
 
@@ -123,7 +123,7 @@ function onRefreshContactSuccess(contacts) {
     catch (err) {
         var txt = "onRefreshContactSuccess: " + err.message;
         txt = txt + "\nfamilyName: " + familyName + "\n" + JSON.stringify(contacts[i]);
-        alert(txt);
+        console.log(txt);
     }
 }
 
@@ -138,6 +138,7 @@ function refreshContactList(){
 }
 
 function initContactsList() {
+    console.log('initContactsList');
     app.showLoading();
     $("#selContacts").kendoMobileListView({
         filterable:{field: "name2", operator:"contains"},
@@ -152,7 +153,7 @@ function initContactsList() {
                 serverSorting: true
             }
         ),
-        endlessScroll: true, 
+        endlessScroll: false, 
         template: $("#contactsTemplate").html(),
         click: function(item) {
             if (item && item.dataItem) {
@@ -241,7 +242,7 @@ function saveLinkContacts() {
         }
     }
     catch (err) {
-        alert("saveLinkContacts: " + err.message)
+        console.log("saveLinkContacts: " + err.message)
     }
 }
 
@@ -296,9 +297,6 @@ function updateKnowStateOfContactRiderID(contact, isKnown) {
 }
 
 function onSaveError(contactError) {
-    alert('error');
-	alert(contactError == null ? "contactError = 0" : contactError);
-	alert(contactError.code);
 	console.log("SaveContact Error = " + contactError.code);
 	showMapAfterContact();
 }

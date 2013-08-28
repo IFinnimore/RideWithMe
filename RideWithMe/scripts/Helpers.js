@@ -71,13 +71,6 @@ function searchContacts() {
 	ctct.save(onSaveSuccess, onSaveError);*/
 }
 
-function onContact2Success(contacts) {
-	//devtools
-	for (var ct in contacts) {
-		alert(contacts[ct].id);
-	}
-}
-
 function status(statustext) {
     $("#statusList").html('<li>' + statustext + '</li>' + $("#statusList").html());
 }

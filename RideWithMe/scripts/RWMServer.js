@@ -26,18 +26,19 @@ function getNewSessionID() {
         error: function (xhr, status, error) {
             // Failed again
             // TODO: Handle second failure
-            alert("handleAjaxError secondError: " + error);
+            console.log('getNewSessionID Error: ' + JSON.stringify(xhr));
         }
     });    
 }
 
 function handleAjaxError(xhr, status, error) {
-    if (xhr && xhr.status == 401) {
+    if (xhr && xhr.status == 412) {
+        // 412 means need new session ID
         if (!(navigator.connection.type == Connection.NONE)) {
             getNewSessionID();
         }
     } else {
-        alert('handleAjaxError: URL(' + cachedURL.length +'):' + cachedURL + '\n' + JSON.stringify(xhr));
+        console.log('handleAjaxError: ' + JSON.stringify(xhr));
     }
 }
 

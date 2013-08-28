@@ -35,29 +35,37 @@ function getKnownRiderInfo(thisRiderId) {
     var fields = ["name", "displayName", "photos", "phoneNumbers", "id"];
 	var options = new ContactFindOptions();
 	options.filter = "#rwmid#" + thisRiderId;
-	options.multiple = true;
+	options.multiple = false;
     if (!isSimulator())
 	    navigator.contacts.find(fields, onGetKnownRiderInfoSuccess, onGetKnownRiderInfoError, options);
     else {
-        var ctk = [ {name:"Ian Finnimore", displayName:"Ian Finnimore", photos:[{value: "./images/simulator/ian.jpg"}], phoneNumbers: [], id: "1"}];
+        var ctk = [ {name:{formatted:"Ian Finnimore"}, displayName:"Ian Finnimore", photos:[{value: "./images/simulator/ian.jpg"}], phoneNumbers: [], id: "1"}];
         onGetKnownRiderInfoSuccess(ctk);
     }
 }
 
 function onGetKnownRiderInfoDone(rider) {
-    if (!model.infoBox) return;
-    var content = model.infoBox.getContent();
+    try {
+        if (!model.infoBox)
+            return;
+        var content = model.infoBox.getContent();
+        
+        var re = new RegExp('##RiderName##', 'g');
     
-	var re = new RegExp('##RiderName##', 'g');
-    
-	content = content.replace(re, rider.displayName);
-	if (rider.photos != null) {
-		content = content.replace('<div style="height: 80px">##RiderPhoto##</div>', '<img src="' + rider.photos[0].value + '" style="width: 80px;"/>');
-	}
-	else {
-		content = content.replace('##RiderPhoto##', '');
-	}
-    model.infoBox.setContent(content);
+        content = content.replace(re, rider.name.formatted);
+        if (rider.photos != null) {
+            content = content.replace('<div style="height: 80px">##RiderPhoto##</div>', '<img src="' + rider.photos[0].value + '" style="height: 80px;"/>');
+        }
+        else {
+            content = content.replace('<div style="height: 80px">##RiderPhoto##</div>', '');
+        }
+        console.log("rider: " + JSON.stringify(rider));
+        
+        model.infoBox.setContent(content);
+    }
+    catch (err) {
+        console.log("onGetKnownRiderInfoDone: Error" + err + "\n" + JSON.stringify(rider));
+    }
 }
 
 function onGetKnownRiderInfoSuccess(contacts) {

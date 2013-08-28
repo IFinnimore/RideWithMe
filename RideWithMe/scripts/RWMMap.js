@@ -236,6 +236,7 @@ function MakeInfoWindowContent(RiderMarker) {
 
     if (RiderMarker.isKnownRider) {  // RWMContacts.js
         // If the rider is known, add tokens for photo and name
+        //ctn += '<div id="InfoWindowRider height: 80px"></div>';
         ctn += '<div style="margin: 3px"><div style="height: 80px">##RiderPhoto##</div></div>';
         ctn += '<div style="margin: 3px">##RiderName##</div>';
         //getKnownRiderInfo(RiderMarker.rider.RiderId, ctn);
@@ -445,7 +446,7 @@ geolocationApp.prototype = {
         var myLoc = new LatLon(position.coords.latitude, position.coords.longitude);
         if (model.prevLoc != null) {
             var distance = myLoc.distanceTo(model.prevLoc) * 1000.0; // Movement distance in meters
-            weMoved =  distance > position.coords.accuracy ? true : false;  // The movement was greater than the accuracy figure of the object
+            weMoved =  distance > (position.coords.accuracy/2) ? true : false;  // The movement was greater than the accuracy figure of the object
         }
 		if (weMoved) {
             if (!model.panOff) {
