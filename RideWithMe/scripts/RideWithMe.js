@@ -101,7 +101,7 @@ $(document).ready(function() {
     
     startMap();
     
-    //initContactsList();
+    window.setTimeout(function () { initContactsList(); }, 500);
 });
 
 document.addEventListener("deviceready", onDeviceReady, false);
@@ -185,6 +185,10 @@ function startRide() {
 				break;
 		}
 
+        // Get rid of the prev
+        
+        model.prevLoc = null;
+        
         // Paint the current map
         refreshMap();
         
@@ -284,6 +288,10 @@ function displayRunState(Running) {
         $("#lblRunStop").html(model.dictionary.runTxt);
         $("#stopLightGO").hide();
     }
+}
+
+function overlaySwipe(e) {
+    overlayStartStop();
 }
 
 var isOverlayShow = true;

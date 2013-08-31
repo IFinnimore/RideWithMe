@@ -358,6 +358,11 @@ function zoomToDefault() {
     }
 }
 
+function stopPanFollow() {
+    if (!model.panOff)
+        zoomToDefault();
+}
+
 function panThem(lat, lng) {
     var pos = new google.maps.LatLng(lat, lng);
     HideInfoWindow();
@@ -394,6 +399,7 @@ geolocationApp.prototype = {
 			});
 			google.maps.event.addListener(model.map, 'idle', BoundsChanged);
             google.maps.event.addListener(model.map, 'click', HideInfoWindow);
+            google.maps.event.addListener(model.map, 'dragstart', stopPanFollow);  // Turns off pan automatically
 		}
         
         var fColor = model.current.Type == 1 ? "#DD88EE" : model.current.Type == 2 ? "#ffff19" : model.current.Type == 3 ? "#194fff" : "#ffffff" ;

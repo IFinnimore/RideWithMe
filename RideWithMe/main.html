@@ -31,26 +31,27 @@
 			<img src="images/Zoom.png" onclick="zoomToDefault()" id="imgZoom"/>
 			<div class="dataConnection" id="lblDataConnection2">NO DATA CONNECTION</div>
             <div class="lowBattery">LOW BATTERY</div>
-            <div id="startStopOverlay" class="shadow">
-				<div class="dataConnection">NO DATA CONNECTION</div>
-                <div class="lowBattery">LOW BATTERY</div>
-				<div id="btnStart">
-					<img src="images/Start.png" onclick="startRide()" id="imgStartStop"/>
-				</div>
-				<div id="lblRunStop" onclick="startRide()">stst</div>
+            <!--StartOverlay-->
+            <div id="startStopOverlay" class="shadow" data-role="touch" data-enable-swipe="true" data-minXDelta="10" data-swipe="overlaySwipe">
+                <div id="startStopOverlayInside">
+                    <div class="dataConnection">NO DATA CONNECTION</div>
+                    <div class="lowBattery">LOW BATTERY</div>
+                    <div id="btnStart">
+                        <img src="images/Start.png" onclick="startRide()" id="imgStartStop"/>
+                    </div>
+                    <div id="lblRunStop" onclick="startRide()">stst</div>
 
-    			<p id="showAllRiders">
-    				<span> <!-- <span id="lblShowAllRiders">All</span> -->
-                        <span id="lblOnlyMyType">My Type</span>
-    				    <input data-role="switch" id="cbOneOrAllTypes"/>
-                    </span>
-    			</p>
-                <div id="pullout">
-                    <input id="pushOpen" type="button" value="push" onclick="overlayStartStop()" />
-                    <!-- <button style="height: 100px; width: 25px"><img src="images/pull.png" onclick="overlayStartStop()" style="left: 0px" /></button> -->
+                    <p id="showAllRiders">
+                        <span> <!-- <span id="lblShowAllRiders">All</span> --> <span id="lblOnlyMyType">My Type</span>
+                            <input data-role="switch" id="cbOneOrAllTypes"/> </span>
+                    </p>
+                    <div id="pullout" data-role="touch" data-enable-swipe="true" data-minXDelta="10" data-swipe="overlaySwipe">
+                        <input id="pushOpen" type="button" value="push" onclick="overlayStartStop()" />
+                        <!-- <button style="height: 100px; width: 25px"><img src="images/pull.png" onclick="overlayStartStop()" style="left: 0px" /></button> -->
+                    </div>
+                    <img id="stopLightStop" class="stopLight" src="images/stoplightStop.png" />
+                    <img id="stopLightGO" style="display: none" class="stopLight" src="images/stoplightGO.png" />
                 </div>
-                <img id="stopLightStop" class="stopLight" src="images/stoplightStop.png" />
-                <img id="stopLightGO" style="display: none" class="stopLight" src="images/stoplightGO.png" />
             </div>
 
 		</div>
@@ -164,7 +165,7 @@
 		</div>
 
         <!-- contactlist -->
-		<div data-role="view" id="tabstrip-contactlist" data-title="Create/Add To Contacts" data-init="initContactsList" data-show="refreshContactList">
+		<div data-role="view" id="tabstrip-contactlist" data-title="Create/Add To Contacts"  data-show="refreshContactList">
 			<ul data-role="listview" data-style="inset" id="selContacts" data-style="inset"></ul>
 			<script id="contactsTemplate" type="text/x-kendo-template">
 				${name2}<img src="images/Link.png" style="display: ${showIcon}" /><a id="btnLinkContact" data-role="detailbutton" data-style="detaildisclose"></a>
@@ -235,7 +236,7 @@
 		</div>
 
 		<script>
-    		app = new kendo.mobile.Application(document.body, { transition: "slide:left", layout: "mobile-tabstrip" });            
+    		app = new kendo.mobile.Application(document.body, { transition: "slide:left", layout: "mobile-tabstrip", loading: "<h1>Please wait..</h1>"});            
 		</script>
 	</body>
 </html>

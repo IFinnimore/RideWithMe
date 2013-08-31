@@ -135,6 +135,9 @@ function refreshContactList(){
         listview.refresh();
         app.hideLoading();
     }
+    else { 
+        initContactsList();
+    }
 }
 
 function initContactsList() {
@@ -148,8 +151,6 @@ function initContactsList() {
             {
                 data: localContacts, 
                 group: "letter",
-                page: 1,
-                pageSize: 30,
                 serverSorting: true
             }
         ),
