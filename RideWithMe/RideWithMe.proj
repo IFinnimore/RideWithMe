@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>9c8520cd-0702-428a-bed2-0ca1d2ffc45b</ProjectGuid>
@@ -10,7 +10,7 @@
     <AndroidPermissions>android.permission.ACCESS_COARSE_LOCATION;android.permission.ACCESS_FINE_LOCATION;android.permission.ACCESS_LOCATION_EXTRA_COMMANDS;android.permission.INTERNET;android.permission.READ_CONTACTS;android.permission.WRITE_CONTACTS;android.permission.WRITE_EXTERNAL_STORAGE;android.permission.ACCESS_NETWORK_STATE</AndroidPermissions>
     <DeviceOrientations>Portrait</DeviceOrientations>
     <iOSStatusBarStyle>Default</iOSStatusBarStyle>
-    <AndroidHardwareAcceleration>true</AndroidHardwareAcceleration>
+    <AndroidHardwareAcceleration>True</AndroidHardwareAcceleration>
     <BundleVersion>1.1</BundleVersion>
     <iOSDisplayName>RideWithMe</iOSDisplayName>
     <iOSDeviceFamily>1</iOSDeviceFamily>
