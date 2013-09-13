@@ -53,6 +53,9 @@ function onResume() {
 	window.setTimeout(function() {
         isPaused= false;
         
+        // Do we have a data connection?
+         checkConnection();
+        
 		// We have come back to the foreground.  Refresh the known riders list
 		refreshKnownRiders();
 		
@@ -78,6 +81,7 @@ function onConnectionOffline() {
 	$('.dataConnection').show(2000);
     $('#lblGetNew').hide();
     model.connected = false;
+    sessionID = "0";
 }
 
 function onConnectionOnline() {
@@ -86,6 +90,9 @@ function onConnectionOnline() {
     $('#lblGetNew').show(100);
 
     model.connected = true;
+    
+    // Get a session ID
+    getNewSessionID();
     
 	// Setup the map with my location
 	refreshMap();

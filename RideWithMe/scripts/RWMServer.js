@@ -4,31 +4,43 @@ var callback = null;
 var sessionID = "0";
 var AppID = "AC867003-5800-44AC-BDFA-1F46A34D0298";
 
+function failedGetNewSessionID() {
+    // Failed again
+    // Cause of second failure is commonly undetected non-network communications e.g. has Data Connection but out of credits.
+    // Indicate offline and setup a retry timer here
+    onConnectionOffline();
+            
+    window.setTimeout(function() {
+        getNewSessionID();
+    }, 15000);
+}
+
 function getNewSessionID() {
-    // Get a new session ID
-    $.ajax({
-        type: "POST",
-        url: urls.newSessionID,
-        contentType: "application/json; charset=utf-8",
-        crossDomain: true,
-        dataType: "json",
-        data: JSON.stringify({ "AppId": AppID }),
-        timeout: 15000,
-        success: function (data) {
-            // We got a new sessionID
-            sessionID = data;
+    if (!(navigator.connection.type == Connection.NONE)) {
+        // Get a new session ID
+        $.ajax({
+            type: "POST",
+            url: urls.newSessionID,
+            contentType: "application/json; charset=utf-8",
+            crossDomain: true,
+            dataType: "json",
+            data: JSON.stringify({ "AppId": AppID }),
+            timeout: 15000,
+            success: function (data) {
+                // We got a new sessionID
+                sessionID = data;
                 
-            // redo the original call
-            if (callback) {
-                window.setTimeout( function() {callback();}, 1);
-            }
-        },
-        error: function (xhr, status, error) {
-            // Failed again
-            // TODO: Handle second failure
-            console.log('getNewSessionID Error: ' + JSON.stringify(xhr));
-        }
-    });    
+                // redo the original call
+                if (callback) {
+                    window.setTimeout(function() {
+                        callback();
+                    }, 1);
+                }
+            },
+            error: failedGetNewSessionID,
+            fail: failedGetNewSessionID
+        });    
+    }
 }
 
 function handleAjaxError(xhr, status, error) {
@@ -92,8 +104,6 @@ function UpdateRWMServer(riderId, lat, lng, heading, riderType, rideStyle, hasTr
 
             myUrl = urls.updateRWMUrl + "riderId=" + riderId + "&lat=" + lat.toFixed(5) + "&lon=" + lng.toFixed(5) + "&heading=" + heading + 
             "&type=" + typestyle + "&pelSize=" + pelSize + "&showAll=" + showAll + "&ts=" + new Date().getTime();
-            
-
         }
         
         cachedURL = myUrl;

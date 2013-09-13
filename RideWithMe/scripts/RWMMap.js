@@ -378,7 +378,7 @@ geolocationApp.prototype = {
 	_handleWatch:function() {
 		var that = this;
         if (model.dictionary != undefined) {
-            that._setResults(model.dictionary.waitingForGeolocationInformation);
+            that._setResults(model.dictionary.dataConnection);
         }
 	},
     
@@ -392,7 +392,11 @@ geolocationApp.prototype = {
 				sensor: true,
 				zoom: 15,
 				center: curPos,
-				mapTypeId: google.maps.MapTypeId.TERRAIN,
+				mapTypeId: google.maps.MapTypeId.ROADMAP,
+                mapTypeControlOptions: {
+                  mapTypeIds: [google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.TERRAIN, google.maps.MapTypeId.SATELLITE, google.maps.MapTypeId.HYBRID],
+                  style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+                },
 				panControl: false,
 				streetViewControl: false,
 				zoomControl: false
