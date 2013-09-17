@@ -95,7 +95,10 @@ function onConnectionOnline() {
     getNewSessionID();
     
 	// Setup the map with my location
-	refreshMap();
+    if (model.geolocationAppRunning)
+	    refreshMap();
+    else
+        afterShowMapTab();
 }
 
 function checkConnection() {
