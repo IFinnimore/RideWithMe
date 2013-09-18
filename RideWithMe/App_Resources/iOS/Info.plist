@@ -27,6 +27,10 @@
 					<string>Default-Landscape@2x.png</string>
 					<string>Default-Portrait.png</string>
 					<string>Default-Portrait@2x.png</string>
+					<string>IconSpot.png</string>
+					<string>IconSpot@2x.png</string>
+					<string>Icon120.png</string>
+					<string>Icon120@2x.png</string>
 				</array>
 			<key>UIPrerenderedIcon</key>
 			<true/>
